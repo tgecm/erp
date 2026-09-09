@@ -60,10 +60,10 @@ export default function RefundCalculator() {
       </div>
 
       {/* Main Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         
         {/* Left Column: Interactive Calculator Box */}
-        <div className="lg:col-span-1 space-y-4">
+        <div className="xl:col-span-4 space-y-4">
           <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl p-5 space-y-4 shadow-xs">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-xs border-b border-slate-100 dark:border-zinc-800 pb-3">
               <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -168,7 +168,7 @@ export default function RefundCalculator() {
         </div>
 
         {/* Right Column: All Accounts Prorated Refund Overview Table */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-8">
           <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
             <div className="p-3.5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
               <h2 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
@@ -182,12 +182,12 @@ export default function RefundCalculator() {
               <table className="w-full text-left text-xs font-mono">
                 <thead className="bg-slate-50 dark:bg-zinc-900/80 text-slate-500 dark:text-zinc-400 uppercase text-[10px] font-extrabold border-b border-slate-200 dark:border-zinc-800">
                   <tr>
-                    <th className="py-3 px-3.5 whitespace-nowrap">RECEIPT & CUSTOMER</th>
-                    <th className="py-3 px-3.5 whitespace-nowrap">PRODUCT PLAN</th>
-                    <th className="py-3 px-3.5 font-mono text-right whitespace-nowrap">NET PAID (MMK)</th>
-                    <th className="py-3 px-3.5 text-center whitespace-nowrap">REMAINING DAYS</th>
-                    <th className="py-3 px-3.5 font-mono text-right whitespace-nowrap">ESTIMATED REFUND</th>
-                    <th className="py-3 px-3.5 text-right whitespace-nowrap">ACTION</th>
+                    <th className="py-3 px-3 whitespace-nowrap">RECEIPT & CUSTOMER</th>
+                    <th className="py-3 px-3 whitespace-nowrap">PRODUCT PLAN</th>
+                    <th className="py-3 px-2.5 font-mono text-right whitespace-nowrap">NET PAID (MMK)</th>
+                    <th className="py-3 px-2.5 text-center whitespace-nowrap">REMAINING DAYS</th>
+                    <th className="py-3 px-2.5 font-mono text-right whitespace-nowrap">ESTIMATED REFUND</th>
+                    <th className="py-3 px-3 text-right whitespace-nowrap sticky right-0 bg-slate-50 dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 z-10 shadow-xs">ACTION</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
@@ -198,18 +198,18 @@ export default function RefundCalculator() {
 
                     return (
                       <tr key={o.id} className="hover:bg-emerald-50/40 dark:hover:bg-emerald-950/30 transition">
-                        <td className="py-3 px-3.5 font-sans whitespace-nowrap">
+                        <td className="py-3 px-3 font-sans whitespace-nowrap">
                           <div className="font-bold text-slate-900 dark:text-white">{o.customerName}</div>
                           <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-bold">{o.receiptId}</div>
                         </td>
-                        <td className="py-3 px-3.5 font-sans whitespace-nowrap">
+                        <td className="py-3 px-3 font-sans whitespace-nowrap">
                           <div className="font-bold text-slate-800 dark:text-zinc-200">{o.productName}</div>
                           <div className="text-[10px] text-slate-500 dark:text-zinc-400">{o.plan}</div>
                         </td>
-                        <td className="py-3 px-3.5 text-right font-mono font-extrabold text-slate-700 dark:text-zinc-300 whitespace-nowrap">
+                        <td className="py-3 px-2.5 text-right font-mono font-extrabold text-slate-700 dark:text-zinc-300 whitespace-nowrap">
                           {netPaid.toLocaleString()} MMK
                         </td>
-                        <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                        <td className="py-3 px-2.5 text-center whitespace-nowrap">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
                             remDays === 0 
                               ? 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400' 
@@ -220,10 +220,10 @@ export default function RefundCalculator() {
                             {remDays} / {o.warrantyDays} Days
                           </span>
                         </td>
-                        <td className="py-3 px-3.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                        <td className="py-3 px-2.5 text-right font-mono font-extrabold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
                           {estRefund.toLocaleString()} MMK
                         </td>
-                        <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                        <td className="py-3 px-3 text-right whitespace-nowrap sticky right-0 bg-white dark:bg-[#09090b] border-l border-slate-100 dark:border-zinc-800/80 z-10 shadow-xs">
                           <button
                             onClick={() => {
                               setSelectedOrderId(o.id);
