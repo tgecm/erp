@@ -19,7 +19,7 @@ export default function BottomNav() {
     { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
     { id: 'cashier', label: 'Cashier', icon: Receipt },
     { id: 'database', label: 'Sales', icon: FileText },
-    { id: 'expiring', label: 'Expiring Soon', icon: Clock },
+    { id: 'expiring', label: 'Expiry', icon: Clock },
     { id: 'warranty', label: 'Warranty', icon: ShieldAlert },
     { id: 'customers', label: 'Clients', icon: Users },
     { id: 'brain', label: 'Catalog', icon: Layers },
@@ -27,7 +27,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="no-print md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-zinc-800 px-2 py-1.5 shadow-lg flex items-center justify-around select-none transition-colors duration-200">
+    <div className="no-print md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#09090b]/95 backdrop-blur-lg border-t border-slate-200/80 dark:border-zinc-800 px-1 py-1 shadow-lg flex items-center justify-around overflow-x-auto no-scrollbar select-none transition-colors duration-200">
       {mobileTabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;

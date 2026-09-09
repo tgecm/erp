@@ -79,22 +79,22 @@ export default function Dashboard() {
       </div>
 
       {/* 4 Summary Metric Cards (Hercules ERP Style) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         {/* Metric 1: Total Revenue */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-5 shadow-xs space-y-3 relative overflow-hidden transition-colors duration-200">
-          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span>Total Revenue</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center space-x-0.5">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2.5 relative overflow-hidden transition-colors duration-200 min-w-0">
+          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400 min-w-0">
+            <span className="truncate">Total Revenue</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center space-x-0.5 shrink-0">
               <ArrowUpRight className="w-3 h-3" />
               <span>12.5%</span>
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+          <div className="text-lg xs:text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono truncate" title={`${totalRevenue.toLocaleString()} MMK`}>
             {totalRevenue.toLocaleString()} <span className="text-xs font-sans text-slate-400">MMK</span>
           </div>
           {/* Mini Sparkline SVG */}
-          <div className="h-6 w-full pt-1">
+          <div className="h-5 sm:h-6 w-full pt-1">
             <svg className="w-full h-full text-indigo-500 stroke-current fill-none" viewBox="0 0 100 25" preserveAspectRatio="none">
               <path d="M0 20 Q 25 15, 50 12 T 100 3" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
@@ -102,19 +102,19 @@ export default function Dashboard() {
         </div>
 
         {/* Metric 2: Total Orders */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-5 shadow-xs space-y-3 relative overflow-hidden transition-colors duration-200">
-          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span>Total Orders</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center space-x-0.5">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2.5 relative overflow-hidden transition-colors duration-200 min-w-0">
+          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400 min-w-0">
+            <span className="truncate">Total Orders</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center space-x-0.5 shrink-0">
               <ArrowUpRight className="w-3 h-3" />
               <span>8.3%</span>
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+          <div className="text-lg xs:text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono truncate">
             {orders.length} <span className="text-xs font-sans text-slate-400">Orders</span>
           </div>
           {/* Mini Sparkline SVG */}
-          <div className="h-6 w-full pt-1">
+          <div className="h-5 sm:h-6 w-full pt-1">
             <svg className="w-full h-full text-violet-500 stroke-current fill-none" viewBox="0 0 100 25" preserveAspectRatio="none">
               <path d="M0 22 Q 25 18, 50 14 T 100 5" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
@@ -122,19 +122,19 @@ export default function Dashboard() {
         </div>
 
         {/* Metric 3: Gross Profit */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-5 shadow-xs space-y-3 relative overflow-hidden transition-colors duration-200">
-          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span>Gross Profit</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center space-x-0.5">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2.5 relative overflow-hidden transition-colors duration-200 min-w-0">
+          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400 min-w-0">
+            <span className="truncate">Gross Profit</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center space-x-0.5 shrink-0">
               <ArrowUpRight className="w-3 h-3" />
               <span>15.7%</span>
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-emerald-400 font-mono">
+          <div className="text-lg xs:text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-emerald-400 font-mono truncate" title={`+${totalProfit.toLocaleString()} MMK`}>
             +{totalProfit.toLocaleString()} <span className="text-xs font-sans text-slate-400">MMK</span>
           </div>
           {/* Mini Sparkline SVG */}
-          <div className="h-6 w-full pt-1">
+          <div className="h-5 sm:h-6 w-full pt-1">
             <svg className="w-full h-full text-emerald-500 stroke-current fill-none" viewBox="0 0 100 25" preserveAspectRatio="none">
               <path d="M0 24 Q 25 19, 50 10 T 100 2" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
@@ -142,19 +142,19 @@ export default function Dashboard() {
         </div>
 
         {/* Metric 4: Avg. Order Value */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-5 shadow-xs space-y-3 relative overflow-hidden transition-colors duration-200">
-          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-            <span>Avg. Order Value</span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center space-x-0.5">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2.5 relative overflow-hidden transition-colors duration-200 min-w-0">
+          <div className="flex justify-between items-center text-xs font-medium text-slate-500 dark:text-slate-400 min-w-0">
+            <span className="truncate">Avg. Order Value</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center space-x-0.5 shrink-0">
               <ArrowUpRight className="w-3 h-3" />
               <span>5.6%</span>
             </span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+          <div className="text-lg xs:text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono truncate" title={`${avgOrderValue.toLocaleString()} MMK`}>
             {avgOrderValue.toLocaleString()} <span className="text-xs font-sans text-slate-400">MMK</span>
           </div>
           {/* Mini Sparkline SVG */}
-          <div className="h-6 w-full pt-1">
+          <div className="h-5 sm:h-6 w-full pt-1">
             <svg className="w-full h-full text-purple-500 stroke-current fill-none" viewBox="0 0 100 25" preserveAspectRatio="none">
               <path d="M0 20 Q 25 17, 50 12 T 100 6" strokeWidth="2.5" strokeLinecap="round" />
             </svg>

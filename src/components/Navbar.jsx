@@ -16,36 +16,36 @@ export default function Navbar() {
   const totalNetProfit = orders.reduce((sum, o) => sum + (o.netProfit || 0), 0);
 
   return (
-    <header className="no-print sticky top-0 z-40 px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-700 via-indigo-700 to-violet-800 text-white shadow-md transition-colors duration-200">
-      <div className="w-full flex items-center justify-between">
+    <header className="no-print sticky top-0 z-40 px-3 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-700 via-indigo-700 to-violet-800 text-white shadow-md transition-colors duration-200">
+      <div className="w-full flex items-center justify-between min-w-0">
         
         {/* Left: Mobile Hamburger + Brand Logo */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           
           {/* Mobile Menu Hamburger Button */}
           <button
             onClick={toggleMobileMenu}
-            className="md:hidden p-2 text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition"
+            className="md:hidden p-1.5 sm:p-2 text-white/90 hover:text-white hover:bg-white/10 rounded-xl transition shrink-0"
             aria-label="Toggle Navigation Menu"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
           {/* Logo & Title */}
-          <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white font-extrabold flex-shrink-0 shadow-xs">
-              <Sparkles className="w-5 h-5 text-white" />
+          <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white font-extrabold shrink-0 shadow-xs">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <span className="font-extrabold text-base sm:text-lg text-white tracking-tight leading-none uppercase">
+                <span className="font-extrabold text-xs xs:text-sm sm:text-lg text-white tracking-tight leading-none uppercase truncate">
                   DIGITAL CITY <span className="text-purple-200 font-medium hidden sm:inline">ERP</span>
                 </span>
-                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-white/20 text-white border border-white/20 leading-none">
+                <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded-full bg-white/20 text-white border border-white/20 leading-none shrink-0">
                   v2.0
                 </span>
               </div>
-              <p className="text-[10px] text-purple-200 font-medium leading-tight hidden xs:block">
+              <p className="text-[10px] text-purple-200 font-medium leading-tight hidden xs:block truncate">
                 Cashier & Operations Management
               </p>
             </div>
@@ -54,7 +54,7 @@ export default function Navbar() {
         </div>
 
         {/* Right: Tickers, Theme Switcher & User Profile */}
-        <div className="flex items-center space-x-2 sm:space-x-3">
+        <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
           
           {/* Revenue Ticker (Desktop) */}
           <div className="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
@@ -70,7 +70,7 @@ export default function Navbar() {
           {/* Light / Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition flex items-center space-x-1 border border-white/15"
+            className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition flex items-center space-x-1 border border-white/15"
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
             aria-label="Toggle Theme Mode"
           >
@@ -84,15 +84,15 @@ export default function Navbar() {
           {/* Refresh Button */}
           <button 
             onClick={() => window.location.reload()}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition border border-white/15"
+            className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition border border-white/15"
             title="Refresh App"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
 
           {/* User Profile Badge */}
-          <div className="flex items-center space-x-2 pl-2 border-l border-white/20">
-            <div className="w-8 h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center font-bold text-xs shadow-xs flex-shrink-0">
+          <div className="flex items-center space-x-2 pl-1.5 sm:pl-2 border-l border-white/20">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
               ML
             </div>
             <div className="text-left hidden sm:block">
