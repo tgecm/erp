@@ -164,23 +164,24 @@ export default function Dashboard() {
       </div>
 
       {/* Middle Section: Sales Overview Chart (Left) + Top Products (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Middle Section: Sales Overview Chart (Left) + Top Products (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         
         {/* Sales Overview Area Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-6 shadow-xs space-y-4 transition-colors duration-200">
+        <div className="lg:col-span-2 bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-colors duration-200 min-w-0 max-w-full overflow-hidden">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Sales Overview</h2>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Sales Overview</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Revenue & Profit performance trajectory</p>
             </div>
-            <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 rounded-xl px-3 py-1.5 focus:outline-none">
+            <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 rounded-xl px-2.5 py-1 sm:px-3 sm:py-1.5 focus:outline-none">
               <option>This Month</option>
               <option>Last Month</option>
               <option>This Year</option>
             </select>
           </div>
 
-          <div className="h-64 w-full pt-2">
+          <div className="h-56 sm:h-64 w-full pt-2 min-w-0 overflow-hidden">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
@@ -207,9 +208,9 @@ export default function Dashboard() {
         </div>
 
         {/* Top Products List */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-6 shadow-xs space-y-4 transition-colors duration-200">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-colors duration-200 min-w-0 max-w-full overflow-hidden">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Top Products</h2>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Top Products</h2>
             <button onClick={() => setActiveTab('brain')} className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
               By Revenue
             </button>
@@ -219,12 +220,12 @@ export default function Dashboard() {
             {productStats.map((item, idx) => {
               const pct = Math.round((item.revenue / maxProdRevenue) * 100);
               return (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-bold text-slate-900 dark:text-white truncate max-w-[170px]">
-                      {item.name} <span className="text-[10px] font-normal text-slate-400">({item.plan})</span>
+                <div key={idx} className="space-y-1.5 min-w-0">
+                  <div className="flex justify-between text-xs items-center gap-2">
+                    <span className="font-bold text-slate-900 dark:text-white truncate max-w-[120px] xs:max-w-[170px] min-w-0">
+                      {item.name} <span className="text-[10px] font-normal text-slate-400 hidden xs:inline">({item.plan})</span>
                     </span>
-                    <span className="font-mono font-bold text-slate-900 dark:text-slate-200">
+                    <span className="font-mono font-bold text-slate-900 dark:text-slate-200 shrink-0">
                       {item.revenue.toLocaleString()} MMK
                     </span>
                   </div>
@@ -243,12 +244,12 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Section: Recent Orders (Left) + Activity Feed (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         
         {/* Recent Orders List */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-6 shadow-xs space-y-4 transition-colors duration-200">
+        <div className="lg:col-span-2 bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-colors duration-200 min-w-0 max-w-full overflow-hidden">
           <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Orders</h2>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Recent Orders</h2>
             <button 
               onClick={() => setActiveTab('database')}
               className="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center space-x-1"
@@ -260,20 +261,20 @@ export default function Dashboard() {
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
             {orders.slice(0, 4).map((o) => (
-              <div key={o.id} className="py-3.5 flex items-center justify-between text-xs hover:bg-slate-50 dark:hover:bg-slate-800/40 px-2 rounded-2xl transition">
-                <div className="flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-mono font-bold">
+              <div key={o.id} className="py-3 flex items-center justify-between gap-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/40 px-2 rounded-2xl transition min-w-0">
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-mono font-bold shrink-0">
                     {o.receiptId.slice(-3)}
                   </div>
-                  <div>
-                    <div className="font-bold text-slate-900 dark:text-white">{o.customerName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{o.productName} ({o.plan})</div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-900 dark:text-white truncate max-w-[110px] xs:max-w-[160px]">{o.customerName}</div>
+                    <div className="text-[10px] text-slate-400 font-mono truncate max-w-[110px] xs:max-w-[160px]">{o.productName} ({o.plan})</div>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
                   <div className="text-right font-mono">
-                    <div className="font-bold text-slate-900 dark:text-white">
+                    <div className="font-bold text-slate-900 dark:text-white text-xs">
                       {((o.sellingPrice || 0) - (o.discount || 0)).toLocaleString()} MMK
                     </div>
                     <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
@@ -281,7 +282,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <span className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+                  <span className="hidden xs:inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
                     Confirmed
                   </span>
                 </div>
@@ -291,9 +292,9 @@ export default function Dashboard() {
         </div>
 
         {/* Activity Feed */}
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-3xl p-6 shadow-xs space-y-4 transition-colors duration-200">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-colors duration-200 min-w-0 max-w-full overflow-hidden">
           <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Activity Feed</h2>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Activity Feed</h2>
             <span className="text-[10px] font-bold text-slate-400 uppercase">Live Logs</span>
           </div>
 
