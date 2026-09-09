@@ -1153,7 +1153,7 @@
       "discount": 0,
       "netProfit": 4000,
       "status": "Pending",
-      "isReminded": false,
+      "isReminded": true,
       "extensionCount": 0,
       "credentialHistory": [],
       "notes": "Payment: 🔸 Official Payment  🏛"
@@ -1180,7 +1180,7 @@
       "discount": 0,
       "netProfit": 10000,
       "status": "Pending",
-      "isReminded": false,
+      "isReminded": true,
       "extensionCount": 0,
       "credentialHistory": [],
       "notes": "Payment: 🔸 Official Payment  🏛"
@@ -1207,7 +1207,7 @@
       "discount": 0,
       "netProfit": 3200,
       "status": "Completed",
-      "isReminded": false,
+      "isReminded": true,
       "extensionCount": 0,
       "credentialHistory": [],
       "notes": "Payment: 2. K Pay ( KBZ Pay )"

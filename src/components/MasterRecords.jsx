@@ -117,7 +117,7 @@ export default function MasterRecords() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 pb-12">
+    <div className="w-full max-w-full space-y-4 sm:space-y-6 pb-12">
       
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 p-4 sm:p-6 rounded-3xl shadow-xs transition-colors duration-200">
@@ -358,7 +358,7 @@ export default function MasterRecords() {
                 <th className="py-4 px-4">Household Code</th>
                 <th className="py-4 px-4 text-center">Warranty Days</th>
                 <th className="py-4 px-4 text-right">Selling / Cost / Net</th>
-                <th className="py-4 px-4 text-center">Actions</th>
+                <th className="py-4 px-4 text-center sticky right-0 bg-slate-50 dark:bg-slate-800/90 border-l border-slate-200 dark:border-slate-800 z-10">Actions</th>
               </tr>
             </thead>
 
@@ -444,7 +444,7 @@ export default function MasterRecords() {
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center sticky right-0 bg-white dark:bg-[#09090b] border-l border-slate-100 dark:border-slate-800/60 z-10">
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => setActiveReceipt(o)}

@@ -55,7 +55,7 @@ export default function FinanceDashboard() {
   const chartData = Object.values(categoryStats);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="w-full max-w-full space-y-6 pb-12">
       
       {/* Overview Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

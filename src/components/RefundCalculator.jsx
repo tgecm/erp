@@ -28,7 +28,7 @@ export default function RefundCalculator() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 pb-12">
+    <div className="w-full max-w-full space-y-4 pb-12">
       
       {/* Sleek Header Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xs">

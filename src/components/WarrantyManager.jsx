@@ -40,7 +40,7 @@ export default function WarrantyManager() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 pb-12">
+    <div className="w-full max-w-full space-y-4 pb-12">
       
       {/* Sleek Compact Top Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xs">
@@ -96,7 +96,7 @@ export default function WarrantyManager() {
                 <th className="py-3 px-3.5 whitespace-nowrap">START & END DATE</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">REMAINING DAYS</th>
                 <th className="py-3 px-3.5 text-center whitespace-nowrap">REMINDED?</th>
-                <th className="py-3 px-3.5 text-right whitespace-nowrap">ACTIONS</th>
+                <th className="py-3 px-3.5 text-right whitespace-nowrap sticky right-0 bg-slate-50 dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 z-10 shadow-xs">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
@@ -114,7 +114,7 @@ export default function WarrantyManager() {
                       <div className="font-bold text-slate-800 dark:text-zinc-200">{o.productName}</div>
                       <div className="text-[10px] text-slate-500 dark:text-zinc-400">{o.plan}</div>
                     </td>
-                    <td className="py-3 px-3.5 text-slate-800 dark:text-zinc-200 font-bold truncate max-w-[160px] whitespace-nowrap">
+                    <td className="py-3 px-3.5 text-slate-800 dark:text-zinc-200 font-bold truncate max-w-[140px] sm:max-w-[220px] whitespace-nowrap" title={o.accountEmail || o.activationUrl || ''}>
                       {o.accountEmail || o.activationUrl || 'N/A'}
                     </td>
                     <td className="py-3 px-3.5 text-slate-600 dark:text-zinc-400 font-mono text-[11px] whitespace-nowrap">
@@ -143,12 +143,13 @@ export default function WarrantyManager() {
                         className="rounded text-indigo-600 accent-indigo-600 cursor-pointer"
                       />
                     </td>
-                    <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                    <td className="py-3 px-3.5 text-right whitespace-nowrap sticky right-0 bg-white dark:bg-[#09090b] border-l border-slate-100 dark:border-zinc-800/80 z-10 shadow-xs">
                       <button
                         onClick={() => handleOpenExtend(o)}
-                        className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-extrabold rounded-lg transition shadow-xs"
+                        className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-extrabold rounded-xl transition shadow-xs whitespace-nowrap inline-flex items-center space-x-1.5 ml-auto"
                       >
-                        + Extend Credentials
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>+ Extend Credentials</span>
                       </button>
                     </td>
                   </tr>
