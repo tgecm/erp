@@ -183,36 +183,6 @@ export default function LoginModal() {
             )}
           </button>
 
-          {/* Quick Demo Helper Presets */}
-          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/80 space-y-2">
-            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center">
-              Quick Logins (Development)
-            </div>
-            <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('merikolenn@gmail.com', 'admin123')}
-                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
-              >
-                Project Owner
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('admin', 'admin123')}
-                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('cashier1', 'cashier123')}
-                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
-              >
-                Staff Cashier
-              </button>
-            </div>
-          </div>
-
         </form>
 
       </div>

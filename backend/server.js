@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
+import crypto from 'crypto';
 
 const pgPool = new pg.Pool({
   user: process.env.DB_USER || 'postgres',
@@ -14,6 +15,25 @@ const pgPool = new pg.Pool({
   max: 5,
   idleTimeoutMillis: 30000,
 });
+
+function verifyWerkzeugHash(password, storedHash) {
+  if (!storedHash || !storedHash.startsWith('scrypt:')) return false;
+  try {
+    const parts = storedHash.split('$');
+    if (parts.length < 3) return false;
+    const params = parts[0].split(':');
+    const N = parseInt(params[1]) || 32768;
+    const r = parseInt(params[2]) || 8;
+    const p = parseInt(params[3]) || 1;
+    const salt = parts[1];
+    const expected = parts[2];
+    const derived = crypto.scryptSync(password, salt, expected.length / 2, { cost: N, blockSize: r, parallelization: p, maxmem: 128 * 1024 * 1024 });
+    return derived.toString('hex') === expected;
+  } catch (err) {
+    console.error('[Password Verify Error]:', err.message);
+    return false;
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,101 +86,58 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Username/Email and Password are required' });
   }
 
-  // 1. Check Presets / Local Fallback Accounts
-  if (username === 'merikolenn@gmail.com' || username === 'owner') {
-    if (password === 'admin123' || password === 'pass#12345') {
-      return res.json({
-        success: true,
-        token: `cm_token_owner_${Date.now()}`,
-        user: {
-          id: 1,
-          name: 'Maung Lenn',
-          username: 'merikolenn@gmail.com',
-          email: 'merikolenn@gmail.com',
-          role: 'Project Owner',
-          permissions: ['all']
-        }
-      });
-    }
-  }
-
-  if (username === 'admin') {
-    if (password === 'admin123' || password === 'pass#12345') {
-      return res.json({
-        success: true,
-        token: `cm_token_admin_${Date.now()}`,
-        user: {
-          id: 2,
-          name: 'Shop Admin',
-          username: 'admin',
-          email: 'admin@crossmarterp.com',
-          role: 'Admin',
-          permissions: ['manage_shop', 'sales', 'reports']
-        }
-      });
-    }
-  }
-
-  if (username === 'cashier1' || username === 'staff') {
-    if (password === 'cashier123' || password === '1234' || password === 'pass#12345') {
-      return res.json({
-        success: true,
-        token: `cm_token_staff_${Date.now()}`,
-        user: {
-          id: 3,
-          name: 'Cashier Staff',
-          username: 'cashier1',
-          role: 'Staff',
-          permissions: ['cashier', 'slips']
-        }
-      });
-    }
-  }
-
-  // 2. Query Read-Only PostgreSQL Database (`telegram_market`) for Shared Logins
+  // Query Read-Only PostgreSQL Database (`telegram_market`) for Shared Logins
   try {
-    const staffResult = await pgPool.query(
-      `SELECT id, username, name, role, is_active FROM staff_accounts WHERE (username = $1 OR name = $1) AND is_active = TRUE LIMIT 1`,
-      [username]
-    );
-
-    if (staffResult.rows.length > 0) {
-      const staff = staffResult.rows[0];
-      const assignedRole = staff.role === 'admin' ? 'Admin' : staff.role === 'moderator' ? 'Moderator' : 'Staff';
-      return res.json({
-        success: true,
-        token: `cm_token_pg_${staff.id}_${Date.now()}`,
-        user: {
-          id: staff.id,
-          name: staff.name || staff.username,
-          username: staff.username,
-          role: assignedRole,
-          permissions: ['cashier', 'slips', 'records']
-        }
-      });
-    }
-
+    // Check users table (for Web Panel accounts)
     const userResult = await pgPool.query(
-      `SELECT id, username, email, web_panel_email, first_name, is_admin FROM users WHERE (web_panel_email = $1 OR email = $1 OR username = $1) LIMIT 1`,
+      `SELECT id, username, email, web_panel_email, first_name, is_admin, password_hash FROM users WHERE (web_panel_email = $1 OR email = $1 OR username = $1) LIMIT 1`,
       [username]
     );
 
     if (userResult.rows.length > 0) {
       const u = userResult.rows[0];
-      const isOwner = u.email === 'merikolenn@gmail.com' || u.web_panel_email === 'merikolenn@gmail.com';
-      const assignedRole = isOwner ? 'Project Owner' : u.is_admin ? 'Admin' : 'Moderator';
-      return res.json({
-        success: true,
-        token: `cm_token_user_${u.id}_${Date.now()}`,
-        user: {
-          id: u.id,
-          name: u.first_name || u.username || u.web_panel_email,
-          username: u.web_panel_email || u.username || u.email,
-          email: u.web_panel_email || u.email,
-          role: assignedRole,
-          permissions: ['all']
-        }
-      });
+      const isPasswordValid = verifyWerkzeugHash(password, u.password_hash);
+      if (isPasswordValid) {
+        const isOwner = u.email === 'merikolenn@gmail.com' || u.web_panel_email === 'merikolenn@gmail.com' || u.web_panel_email === 'japanlenn@gmail.com' || u.email === 'japanlenn@gmail.com';
+        const assignedRole = isOwner ? 'Project Owner' : u.is_admin ? 'Admin' : 'Moderator';
+        return res.json({
+          success: true,
+          token: `cm_token_user_${u.id}_${Date.now()}`,
+          user: {
+            id: u.id,
+            name: u.first_name || u.username || u.web_panel_email,
+            username: u.web_panel_email || u.username || u.email,
+            email: u.web_panel_email || u.email,
+            role: assignedRole,
+            permissions: ['all']
+          }
+        });
+      }
+    }
+
+    // Check staff_accounts table
+    const staffResult = await pgPool.query(
+      `SELECT id, username, name, role, is_active, password_hash FROM staff_accounts WHERE (username = $1 OR name = $1) AND is_active = TRUE LIMIT 1`,
+      [username]
+    );
+
+    if (staffResult.rows.length > 0) {
+      const staff = staffResult.rows[0];
+      const isPasswordValid = verifyWerkzeugHash(password, staff.password_hash);
+      if (isPasswordValid) {
+        const assignedRole = staff.role === 'admin' ? 'Admin' : staff.role === 'moderator' ? 'Moderator' : 'Staff';
+        return res.json({
+          success: true,
+          token: `cm_token_pg_${staff.id}_${Date.now()}`,
+          user: {
+            id: staff.id,
+            name: staff.name || staff.username,
+            username: staff.username,
+            role: assignedRole,
+            permissions: ['cashier', 'slips', 'records']
+          }
+        });
+      }
     }
 
     return res.status(401).json({ success: false, error: 'Invalid username or password' });
