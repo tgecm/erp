@@ -142,7 +142,7 @@ export default function MasterRecords() {
             <span className="hidden sm:inline">Config</span>
           </button>
           <button
-            onClick={exportCSV}
+            onClick={handleExportCSV}
             className="px-2.5 py-1.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-xs transition"
           >
             <Download className="w-3.5 h-3.5" />
