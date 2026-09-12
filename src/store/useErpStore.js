@@ -56,9 +56,15 @@ export const useErpStore = create((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Login failed');
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Backend response invalid. Please check server connection.');
+      }
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Invalid credentials.');
       }
       if (typeof window !== 'undefined') {
         localStorage.setItem('cm_user', JSON.stringify(data.user));
