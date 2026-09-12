@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useErpStore } from '../store/useErpStore';
+import CustomSelect from './CustomSelect';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -24,6 +25,7 @@ import {
 
 export default function Dashboard() {
   const { orders, products, customers, setActiveTab, getRemainingWarrantyDays } = useErpStore();
+  const [period, setPeriod] = useState('This Month');
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.sellingPrice || 0) - (o.discount || 0), 0);
   const totalCost = orders.reduce((sum, o) => sum + (o.costPrice || 0), 0);
@@ -174,11 +176,12 @@ export default function Dashboard() {
               <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Sales Overview</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Revenue & Profit performance trajectory</p>
             </div>
-            <select className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 rounded-xl px-2.5 py-1 sm:px-3 sm:py-1.5 focus:outline-none">
-              <option>This Month</option>
-              <option>Last Month</option>
-              <option>This Year</option>
-            </select>
+            <CustomSelect
+              value={period || 'This Month'}
+              onChange={(val) => setPeriod(val)}
+              options={['This Month', 'Last Month', 'This Year']}
+              buttonClassName="py-1 px-3 rounded-xl text-xs font-bold"
+            />
           </div>
 
           <div className="h-56 sm:h-64 w-full pt-2 min-w-0 overflow-hidden">

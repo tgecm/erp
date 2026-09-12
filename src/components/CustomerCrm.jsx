@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useErpStore } from '../store/useErpStore';
+import CustomSelect from './CustomSelect';
 import { Users, UserPlus, Star, Phone, Mail, Globe, Search, Edit, Trash2, Plus, MessageSquare } from 'lucide-react';
 
 export default function CustomerCrm() {
@@ -421,18 +422,19 @@ export default function CustomerCrm() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Platform Channel</label>
-                  <select
+                  <CustomSelect
                     value={formData.platform}
-                    onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                  >
-                    <option value="Facebook">Facebook</option>
-                    <option value="Telegram">Telegram</option>
-                    <option value="Viber">Viber</option>
-                    <option value="TikTok">TikTok</option>
-                    <option value="Direct">Direct</option>
-                    <option value="CUSTOM">+ Add Custom</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, platform: val })}
+                    options={[
+                      { value: 'Facebook', label: 'Facebook' },
+                      { value: 'Telegram', label: 'Telegram' },
+                      { value: 'Viber', label: 'Viber' },
+                      { value: 'TikTok', label: 'TikTok' },
+                      { value: 'Direct', label: 'Direct' },
+                      { value: 'CUSTOM', label: '+ Add Custom' },
+                    ]}
+                    buttonClassName="py-2 px-3 rounded-xl text-xs font-bold"
+                  />
                 </div>
               </div>
 
@@ -599,18 +601,19 @@ export default function CustomerCrm() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Platform Channel</label>
-                  <select
+                  <CustomSelect
                     value={editingCustomer.platformSelection || 'Facebook'}
-                    onChange={(e) => setEditingCustomer({ ...editingCustomer, platformSelection: e.target.value })}
-                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                  >
-                    <option value="Facebook">Facebook</option>
-                    <option value="Telegram">Telegram</option>
-                    <option value="Viber">Viber</option>
-                    <option value="TikTok">TikTok</option>
-                    <option value="Direct">Direct</option>
-                    <option value="CUSTOM">+ Add Custom</option>
-                  </select>
+                    onChange={(val) => setEditingCustomer({ ...editingCustomer, platformSelection: val })}
+                    options={[
+                      { value: 'Facebook', label: 'Facebook' },
+                      { value: 'Telegram', label: 'Telegram' },
+                      { value: 'Viber', label: 'Viber' },
+                      { value: 'TikTok', label: 'TikTok' },
+                      { value: 'Direct', label: 'Direct' },
+                      { value: 'CUSTOM', label: '+ Add Custom' },
+                    ]}
+                    buttonClassName="py-2 px-3 rounded-xl text-xs font-bold"
+                  />
                 </div>
               </div>
 

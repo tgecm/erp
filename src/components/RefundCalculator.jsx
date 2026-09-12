@@ -1,6 +1,111 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useErpStore } from '../store/useErpStore';
-import { Calculator, RefreshCw, DollarSign, ArrowRightLeft, Search } from 'lucide-react';
+import { Calculator, RefreshCw, DollarSign, ArrowRightLeft, Search, ChevronDown } from 'lucide-react';
+
+function OrderSelectDropdown({ orders, selectedOrderId, onSelect }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const dropdownRef = useRef(null);
+
+  const selectedOrd = orders.find(o => o.id === selectedOrderId) || orders[0];
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredOrders = orders.filter(o => {
+    const q = search.toLowerCase();
+    return (o.customerName && o.customerName.toLowerCase().includes(q)) ||
+           (o.productName && o.productName.toLowerCase().includes(q)) ||
+           (o.receiptId && o.receiptId.toLowerCase().includes(q)) ||
+           (o.id && o.id.toLowerCase().includes(q));
+  });
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-left transition flex items-center justify-between shadow-xs hover:border-emerald-500/50 focus:outline-none"
+      >
+        <div className="min-w-0 flex-1 pr-2">
+          <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+            {selectedOrd ? `${selectedOrd.customerName} - ${selectedOrd.productName}` : 'Select Order...'}
+          </div>
+          {selectedOrd && (
+            <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">
+              {selectedOrd.receiptId}
+            </div>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-emerald-600 dark:text-emerald-400' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-[#121215] border border-slate-200/80 dark:border-zinc-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 max-h-72 flex flex-col">
+          {/* Search Header */}
+          <div className="p-2 border-b border-slate-100 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/70">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+              <input
+                type="text"
+                autoFocus
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search order ID, receipt, or customer..."
+                className="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg pl-8 pr-2 py-1 text-xs text-slate-900 dark:text-white focus:outline-none font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Order Items List */}
+          <div className="overflow-y-auto p-1 space-y-0.5 divide-y divide-slate-100/40 dark:divide-zinc-800/30">
+            {filteredOrders.length === 0 ? (
+              <div className="p-3 text-center text-xs text-slate-400">
+                No matching orders found.
+              </div>
+            ) : (
+              filteredOrders.map((ord) => {
+                const isSelected = ord.id === selectedOrderId;
+                return (
+                  <button
+                    key={ord.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(ord.id);
+                      setIsOpen(false);
+                      setSearch('');
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition flex items-center justify-between ${
+                      isSelected
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200/50 dark:border-emerald-800/50'
+                        : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-800 dark:text-slate-200 font-medium'
+                    }`}
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="text-xs truncate font-bold">
+                        {ord.customerName} - {ord.productName}
+                      </div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                        {ord.receiptId} • {ord.plan}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function RefundCalculator() {
   const { orders, getRemainingWarrantyDays, calculateRefundEstimate } = useErpStore();
@@ -74,22 +179,16 @@ export default function RefundCalculator() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">Select Order</label>
-              <select
-                value={selectedOrderId}
-                onChange={(e) => {
-                  setSelectedOrderId(e.target.value);
+              <OrderSelectDropdown
+                orders={orders}
+                selectedOrderId={selectedOrderId}
+                onSelect={(id) => {
+                  setSelectedOrderId(id);
                   setCustomDaysLeft('');
                   setCustomTotalDays('');
                   setCustomPricePaid('');
                 }}
-                className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-emerald-500 font-bold"
-              >
-                {orders.map((o) => (
-                  <option key={o.id} value={o.id} className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">
-                    {o.customerName} - {o.productName} ({o.receiptId})
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {selectedOrder && (

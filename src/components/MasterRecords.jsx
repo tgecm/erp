@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useErpStore } from '../store/useErpStore';
+import CustomSelect from './CustomSelect';
 import { 
   FileText, 
   Search, 
@@ -206,34 +207,24 @@ export default function MasterRecords() {
         </div>
 
         <div className="grid grid-cols-2 md:flex gap-2 items-center">
-          <div className="flex items-center space-x-1 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 px-2.5 py-1.5 rounded-2xl">
-            <Filter className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            <select
-              value={selectedCategory}
-              onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
-              className="bg-transparent text-xs text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer font-bold w-full"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat} className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">
-                  {cat === 'ALL' ? 'All Categories' : cat}
-                </option>
-              ))}
-            </select>
-          </div>
+          <CustomSelect
+            value={selectedCategory}
+            onChange={(val) => { setSelectedCategory(val); setCurrentPage(1); }}
+            options={categories.map(cat => ({ value: cat, label: cat === 'ALL' ? 'All Categories' : cat }))}
+            buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+          />
 
-          <div className="flex items-center space-x-1 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 px-2.5 py-1.5 rounded-2xl">
-            <ShieldCheck className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-            <select
-              value={expiryFilter}
-              onChange={(e) => { setExpiryFilter(e.target.value); setCurrentPage(1); }}
-              className="bg-transparent text-xs text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer font-bold w-full"
-            >
-              <option value="ALL" className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">All Expiry</option>
-              <option value="ACTIVE" className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">Active (&gt; 7D)</option>
-              <option value="EXPIRING" className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">Expiring (&lt; 7D)</option>
-              <option value="EXPIRED" className="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white">Expired (0D)</option>
-            </select>
-          </div>
+          <CustomSelect
+            value={expiryFilter}
+            onChange={(val) => { setExpiryFilter(val); setCurrentPage(1); }}
+            options={[
+              { value: 'ALL', label: 'All Expiry' },
+              { value: 'ACTIVE', label: 'Active (> 7D)' },
+              { value: 'EXPIRING', label: 'Expiring (< 7D)' },
+              { value: 'EXPIRED', label: 'Expired (0D)' },
+            ]}
+            buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+          />
         </div>
       </div>
 
@@ -486,15 +477,16 @@ export default function MasterRecords() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <span>Per page:</span>
-              <select
+              <CustomSelect
                 value={pageSize}
-                onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
-                className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-slate-200 px-2 py-1 rounded-xl font-bold cursor-pointer"
-              >
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+                onChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }}
+                options={[
+                  { value: 25, label: '25' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ]}
+                buttonClassName="py-1 px-3.5 rounded-xl text-xs font-bold"
+              />
             </div>
 
             <div className="flex items-center space-x-1">

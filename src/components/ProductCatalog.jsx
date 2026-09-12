@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useErpStore } from '../store/useErpStore';
+import CustomSelect from './CustomSelect';
 import { 
   Database, Plus, Search, Layers, Home, CreditCard, 
   Truck, Tag, Bell, Sliders, Edit, Trash2, CheckCircle2
@@ -789,29 +790,21 @@ export default function ProductCatalog() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">Category</label>
-                    <select
+                    <CustomSelect
                       value={productForm.category}
-                      onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                    >
-                      <option value="Streaming">Streaming</option>
-                      <option value="Design & Video">Design & Video</option>
-                      <option value="Productivity">Productivity</option>
-                      <option value="Music">Music</option>
-                      <option value="AI Tools">AI Tools</option>
-                    </select>
+                      onChange={(val) => setProductForm({ ...productForm, category: val })}
+                      options={['Streaming', 'Design & Video', 'Productivity', 'Music', 'AI Tools']}
+                      buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">Delivery Method</label>
-                    <select
+                    <CustomSelect
                       value={productForm.deliveryMethod}
-                      onChange={(e) => setProductForm({ ...productForm, deliveryMethod: e.target.value })}
-                      className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                    >
-                      <option value="Email & Password">Email & Password</option>
-                      <option value="Activation Link">Activation Link</option>
-                      <option value="Invite Email">Invite Email</option>
-                    </select>
+                      onChange={(val) => setProductForm({ ...productForm, deliveryMethod: val })}
+                      options={['Email & Password', 'Activation Link', 'Invite Email']}
+                      buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -1016,29 +1009,21 @@ export default function ProductCatalog() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">Category</label>
-                      <select
+                      <CustomSelect
                         value={editForm.category}
-                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                        className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                      >
-                        <option value="Streaming">Streaming</option>
-                        <option value="Design & Video">Design & Video</option>
-                        <option value="Productivity">Productivity</option>
-                        <option value="Music">Music</option>
-                        <option value="AI Tools">AI Tools</option>
-                      </select>
+                        onChange={(val) => setEditForm({ ...editForm, category: val })}
+                        options={['Streaming', 'Design & Video', 'Productivity', 'Music', 'AI Tools']}
+                        buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 mb-1">Delivery Method</label>
-                      <select
+                      <CustomSelect
                         value={editForm.deliveryMethod}
-                        onChange={(e) => setEditForm({ ...editForm, deliveryMethod: e.target.value })}
-                        className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-3 py-2 text-xs text-slate-900 dark:text-white font-bold"
-                      >
-                        <option value="Email & Password">Email & Password</option>
-                        <option value="Activation Link">Activation Link</option>
-                        <option value="Invite Email">Invite Email</option>
-                      </select>
+                        onChange={(val) => setEditForm({ ...editForm, deliveryMethod: val })}
+                        options={['Email & Password', 'Activation Link', 'Invite Email']}
+                        buttonClassName="py-2 px-3 rounded-2xl text-xs font-bold"
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">

@@ -17,6 +17,7 @@ import {
   Search,
   Check
 } from 'lucide-react';
+import CustomSelect from './CustomSelect';
 
 function ProductSelectDropdown({ products, selectedProductId, onSelect }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -116,6 +117,129 @@ function ProductSelectDropdown({ products, selectedProductId, onSelect }) {
                     <div className="text-right shrink-0">
                       <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
                         {prod.sellingPrice.toLocaleString()} MMK
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomerSelectDropdown({ customers, selectedCustomerId, onSelect }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const dropdownRef = useRef(null);
+
+  const selectedCust = customers.find(c => c.id === selectedCustomerId);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredCustomers = customers.filter(c => {
+    const q = search.toLowerCase();
+    return (c.name && c.name.toLowerCase().includes(q)) ||
+           (c.id && c.id.toLowerCase().includes(q)) ||
+           (c.phone && c.phone.includes(q)) ||
+           (c.email && c.email.toLowerCase().includes(q));
+  });
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-left transition flex items-center justify-between shadow-xs hover:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+      >
+        <div className="min-w-0 flex-1 pr-2">
+          <div className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+            {selectedCust ? `${selectedCust.name} (${selectedCust.id})` : '-- Walk-in / Guest Customer --'}
+          </div>
+          {selectedCust && selectedCust.isVIP && (
+            <div className="text-[10px] font-bold text-amber-500 mt-0.5 flex items-center space-x-1">
+              <span>⭐ VIP Client</span>
+            </div>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-white dark:bg-[#121215] border border-slate-200/80 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 max-h-80 flex flex-col">
+          {/* Search Header */}
+          <div className="p-2.5 border-b border-slate-100 dark:border-zinc-800/80 bg-slate-50/70 dark:bg-zinc-900/70">
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                autoFocus
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search customer name, phone, or ID..."
+                className="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Customer Items List */}
+          <div className="overflow-y-auto p-1.5 space-y-1 divide-y divide-slate-100/40 dark:divide-zinc-800/30">
+            {/* Walk-in Guest option */}
+            <button
+              type="button"
+              onClick={() => {
+                onSelect('');
+                setIsOpen(false);
+                setSearch('');
+              }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl transition flex items-center justify-between ${
+                !selectedCustomerId
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 font-bold'
+                  : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-700 dark:text-slate-300 font-medium'
+              }`}
+            >
+              <span className="text-xs">-- Walk-in / Guest Customer --</span>
+            </button>
+
+            {filteredCustomers.length === 0 ? (
+              <div className="p-4 text-center text-xs text-slate-400">
+                No matching customer records found.
+              </div>
+            ) : (
+              filteredCustomers.map((cust) => {
+                const isSelected = cust.id === selectedCustomerId;
+                return (
+                  <button
+                    key={cust.id}
+                    type="button"
+                    onClick={() => {
+                      onSelect(cust.id);
+                      setIsOpen(false);
+                      setSearch('');
+                    }}
+                    className={`w-full text-left px-3.5 py-2.5 rounded-xl transition flex items-center justify-between group ${
+                      isSelected
+                        ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 font-bold border border-indigo-200/50 dark:border-indigo-800/50'
+                        : 'hover:bg-slate-50 dark:hover:bg-zinc-800/60 text-slate-800 dark:text-slate-200 font-medium'
+                    }`}
+                  >
+                    <div className="min-w-0 pr-3">
+                      <div className="text-xs truncate font-extrabold flex items-center space-x-1.5">
+                        <span>{cust.name}</span>
+                        {cust.isVIP && <span className="text-[10px] text-amber-500 font-bold">⭐ VIP</span>}
+                      </div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 truncate">
+                        {cust.id} {cust.phone ? `• ${cust.phone}` : ''}
                       </div>
                     </div>
                   </button>
@@ -286,18 +410,11 @@ export default function CashierCheckout() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Existing Customer (Optional)</label>
-                <select
-                  value={selectedCustomerId}
-                  onChange={(e) => handleCustomerChange(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
-                >
-                  <option value="">-- Walk-in / Guest Customer --</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.id}) {c.isVIP ? '⭐ VIP' : ''}
-                    </option>
-                  ))}
-                </select>
+                <CustomerSelectDropdown
+                  customers={customers}
+                  selectedCustomerId={selectedCustomerId}
+                  onSelect={handleCustomerChange}
+                />
               </div>
 
               <div>
@@ -314,30 +431,30 @@ export default function CashierCheckout() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Sales Platform</label>
-                <select
+                <CustomSelect
                   value={formData.platform || 'Facebook Page'}
-                  onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white font-medium focus:outline-none"
-                >
-                  <option value="Facebook Page">Facebook Page</option>
-                  <option value="Telegram">Telegram Channel / DM</option>
-                  <option value="TikTok">TikTok Store</option>
-                  <option value="Viber">Viber Community</option>
-                  <option value="Web Direct">Web Direct</option>
-                </select>
+                  onChange={(val) => setFormData({ ...formData, platform: val })}
+                  options={[
+                    { value: 'Facebook Page', label: 'Facebook Page' },
+                    { value: 'Telegram', label: 'Telegram Channel / DM' },
+                    { value: 'TikTok', label: 'TikTok Store' },
+                    { value: 'Viber', label: 'Viber Community' },
+                    { value: 'Web Direct', label: 'Web Direct' },
+                  ]}
+                />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Account Delivery Method</label>
-                <select
+                <CustomSelect
                   value={formData.deliveryMethod || 'Email & Password'}
-                  onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white font-bold focus:outline-none"
-                >
-                  <option value="Email & Password">Email & Password (Direct Login)</option>
-                  <option value="Activation Link">Activation Link / License Key</option>
-                  <option value="Invite Email">Invite Link / Email Invitation</option>
-                </select>
+                  onChange={(val) => setFormData({ ...formData, deliveryMethod: val })}
+                  options={[
+                    { value: 'Email & Password', label: 'Email & Password (Direct Login)' },
+                    { value: 'Activation Link', label: 'Activation Link / License Key' },
+                    { value: 'Invite Email', label: 'Invite Link / Email Invitation' },
+                  ]}
+                />
               </div>
 
               {/* Dynamic Credentials Inputs based on Delivery Method */}
