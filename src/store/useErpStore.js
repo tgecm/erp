@@ -46,8 +46,27 @@ export const useErpStore = create((set, get) => ({
   setActiveTab: (tab) => set({ activeTab: tab, isMobileMenuOpen: false }),
 
   // Auth State
-  user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('cm_user') || 'null') : null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('cm_token') || null : null,
+  user: (() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const item = localStorage.getItem('cm_user');
+      if (!item || item === 'undefined' || item === 'null') return null;
+      return JSON.parse(item);
+    } catch (e) {
+      console.error('Error loading cm_user:', e);
+      return null;
+    }
+  })(),
+  token: (() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const item = localStorage.getItem('cm_token');
+      if (!item || item === 'undefined' || item === 'null') return null;
+      return item;
+    } catch (e) {
+      return null;
+    }
+  })(),
 
   login: async (username, password) => {
     try {
@@ -64,13 +83,22 @@ export const useErpStore = create((set, get) => ({
         throw new Error('Backend response invalid. Please check server connection.');
       }
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Invalid credentials.');
+        return { 
+          success: false, 
+          error: data.error || 'Invalid credentials.',
+          requiresVerification: data.requiresVerification,
+          email: data.email
+        };
       }
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('cm_user', JSON.stringify(data.user));
-        localStorage.setItem('cm_token', data.token);
+      if (typeof window !== 'undefined' && data.user) {
+        try {
+          localStorage.setItem('cm_user', JSON.stringify(data.user));
+          if (data.token) localStorage.setItem('cm_token', data.token);
+        } catch (e) {
+          console.error('Error saving session:', e);
+        }
       }
-      set({ user: data.user, token: data.token });
+      set({ user: data.user || null, token: data.token || null });
       return { success: true, user: data.user };
     } catch (err) {
       return { success: false, error: err.message };
@@ -78,11 +106,15 @@ export const useErpStore = create((set, get) => ({
   },
 
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('cm_user');
-      localStorage.removeItem('cm_token');
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('cm_user');
+        localStorage.removeItem('cm_token');
+      }
+    } catch (e) {
+      console.error('Logout error:', e);
     }
-    set({ user: null, token: null, activeTab: 'dashboard' });
+    set({ user: null, token: null, activeTab: 'dashboard', isMobileMenuOpen: false });
   },
 
   // Theme State
