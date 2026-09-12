@@ -38,9 +38,6 @@ export default function Navbar() {
                 <span className="font-extrabold text-xs xs:text-sm sm:text-lg text-white tracking-tight leading-none uppercase truncate">
                   DIGITAL CITY <span className="text-purple-200 font-medium hidden sm:inline">ERP</span>
                 </span>
-                <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded-full bg-white/20 text-white border border-white/20 leading-none shrink-0">
-                  v2.0
-                </span>
               </div>
               <p className="text-[10px] text-purple-200 font-medium leading-tight hidden xs:block truncate">
                 Cashier & Operations Management
