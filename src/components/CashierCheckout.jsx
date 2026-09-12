@@ -109,32 +109,7 @@ export default function CashierCheckout() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
-      {/* Hero Card Banner (Compact & Optimized) */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-white rounded-2xl p-3.5 sm:p-5 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-purple-500/15 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
-        
-        <div className="relative z-10 flex flex-row items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-lg text-[10px] sm:text-xs font-bold text-indigo-200 border border-white/10 uppercase tracking-wider shrink-0">
-                ✨ Cashier
-              </span>
-              <h1 className="text-sm sm:text-xl font-extrabold tracking-tight truncate">
-                Create Order & Issue Receipt
-              </h1>
-            </div>
-          </div>
 
-          <button
-            onClick={() => setActiveTab('database')}
-            className="shrink-0 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/20 transition flex items-center space-x-1.5"
-          >
-            <span className="hidden sm:inline">View Master Sales Sheet</span>
-            <span className="sm:hidden text-[11px]">Sales Sheet</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
 
       {/* Main Cashier Form Grid */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
