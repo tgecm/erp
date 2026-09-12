@@ -13,7 +13,7 @@ export default function ReceiptModal() {
 
   const handleCopyCredentials = () => {
     const text = `
-🛒 *DIGITAL CITY RECEIPT*
+🛒 *CROSSMART ERP RECEIPT*
 Receipt ID: ${activeReceipt.receiptId}
 Product: ${activeReceipt.productName} (${activeReceipt.plan})
 Account Email: ${activeReceipt.accountEmail}
@@ -73,7 +73,7 @@ Price Paid: ${((activeReceipt.sellingPrice || 0) - (activeReceipt.discount || 0)
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-400 mb-1">
               <Store className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-white">DIGITAL CITY</h2>
+            <h2 className="text-xl font-bold tracking-tight text-white">CROSSMART ERP</h2>
             <p className="text-xs text-slate-400">Digital Accounts & Subscription Retailer</p>
             <p className="text-[11px] text-slate-500 font-sans">Official Cashier Sales Voucher</p>
           </div>

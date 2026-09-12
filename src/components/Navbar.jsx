@@ -36,7 +36,7 @@ export default function Navbar() {
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
                 <span className="font-extrabold text-xs xs:text-sm sm:text-lg text-white tracking-tight leading-none uppercase truncate">
-                  DIGITAL CITY <span className="text-purple-200 font-medium hidden sm:inline">ERP</span>
+                  CROSSMART <span className="text-purple-200 font-medium hidden sm:inline">ERP</span>
                 </span>
               </div>
               <p className="text-[10px] text-purple-200 font-medium leading-tight hidden xs:block truncate">

@@ -80,7 +80,7 @@ export default function MasterRecords() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `DigitalCity_MasterRecords_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `CrossMart_MasterRecords_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
   };
 

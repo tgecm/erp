@@ -112,7 +112,7 @@ export default function Sidebar() {
         </button>
 
         <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 text-center space-y-0.5">
-          <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Digital City ERP</div>
+          <div className="text-xs font-bold text-slate-800 dark:text-slate-200">CrossMart ERP</div>
           <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Standalone Operations</div>
         </div>
       </div>
