@@ -201,7 +201,7 @@ export default function Dashboard() {
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${val / 1000}k`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                  formatter={(val) => [`${val.toLocaleString()} MMK`, '']}
+                  formatter={(val, name) => [`${val.toLocaleString()} MMK`, name === 'revenue' ? 'Revenue' : name === 'profit' ? 'Profit' : name]}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" name="Revenue" />
                 <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorProf)" name="Profit" />
