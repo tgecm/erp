@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { addDays, format, parseISO } from 'date-fns';
 
 const API_BASE = typeof window !== 'undefined'
-  ? `http://${window.location.hostname}:4000/api`
-  : 'http://localhost:4000/api';
+  ? (window.location.port === '3000' ? 'http://localhost:4000/api' : '/api')
+  : '/api';
 
 const defaultVisibleColumns = {
   recordNo: true,
