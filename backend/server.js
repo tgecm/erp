@@ -255,6 +255,6 @@ app.delete('/api/suppliers/:id', (req, res) => {
   res.json({ success: true, id });
 });
 
-app.listen(PORT, () => {
-  console.log(`[Digital City ERP RAM Backend] Running ultra-fast on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[Digital City ERP RAM Backend] Running ultra-fast on http://0.0.0.0:${PORT}`);
 });
