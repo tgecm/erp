@@ -5,6 +5,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import pg from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const pgPool = new pg.Pool({
   user: process.env.DB_USER || 'postgres',
