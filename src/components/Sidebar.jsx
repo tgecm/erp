@@ -61,7 +61,10 @@ export default function Sidebar() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsMobileMenuOpen(false);
+                }}
                 className={`relative w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-colors duration-150 active:scale-98 ${
                   isActive
                     ? 'text-indigo-700 dark:text-indigo-300 font-extrabold shadow-xs'

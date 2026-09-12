@@ -169,8 +169,106 @@ export default function CustomerCrm() {
         </div>
       </div>
 
-      {/* Pure Table List View with optimized column widths & clear Edit/Delete actions */}
-      <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
+      {/* MOBILE CARD LIST (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {filteredCustomers.length === 0 ? (
+          <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl p-8 text-center text-xs text-slate-400 font-medium">
+            No customers match your search.
+          </div>
+        ) : (
+          filteredCustomers.map((c) => (
+            <div key={c.id} className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs transition-colors duration-200">
+              {/* Header: Name + ID + Status */}
+              <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2.5">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-bold text-slate-900 dark:text-white text-sm break-words">{c.name}</span>
+                    {c.isVIP && (
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 inline-flex items-center space-x-0.5 shrink-0">
+                        <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                        <span>VIP</span>
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-mono font-extrabold text-indigo-600 dark:text-indigo-400 text-[11px]">{c.id}</span>
+                </div>
+                <span className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold inline-block ${
+                  c.isVIP
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                }`}>
+                  {c.isVIP ? 'VIP Client' : 'Active'}
+                </span>
+              </div>
+
+              {/* Contact + Platform + Spent */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="min-w-0">
+                  <span className="block text-[10px] text-slate-400 uppercase font-bold">Contact</span>
+                  <span className="block font-mono text-slate-700 dark:text-zinc-300 font-medium truncate">{c.phone || '-'}</span>
+                  <span className="block text-slate-500 dark:text-zinc-400 truncate">{c.email || '-'}</span>
+                  {c.telegramUsername && (
+                    <span className="block text-[10px] text-sky-600 dark:text-sky-400 font-mono font-bold truncate">
+                      {c.telegramUsername.startsWith('@') ? c.telegramUsername : `@${c.telegramUsername}`}
+                    </span>
+                  )}
+                </div>
+                <div className="text-right min-w-0">
+                  <span className="block text-[10px] text-slate-400 uppercase font-bold">Total Spent</span>
+                  <span className="block font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {(c.totalSpent || 0).toLocaleString()} MMK
+                  </span>
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded-lg text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    {c.platform || 'Facebook'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Note + Custom fields */}
+              {(c.note || (c.customFields && c.customFields.length > 0)) && (
+                <div className="bg-slate-50 dark:bg-zinc-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-zinc-800 text-xs">
+                  {c.note && (
+                    <div className="text-slate-600 dark:text-zinc-400 leading-snug break-words">{c.note}</div>
+                  )}
+                  {c.customFields && c.customFields.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {c.customFields.map((f, fi) => (
+                        <span key={fi} className="px-1.5 py-0.5 bg-slate-100 dark:bg-zinc-800 text-[9px] font-mono rounded text-slate-600 dark:text-zinc-300">
+                          {f.label}: {f.value}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800">
+                <button
+                  onClick={() => handleOpenEdit(c)}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs shrink-0"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm(`Are you sure you want to delete customer "${c.name}"?`)) {
+                      deleteCustomer(c.id);
+                    }
+                  }}
+                  className="px-3.5 py-2 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition border border-rose-200 dark:border-rose-800 shrink-0"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Pure Table List View (md+) with optimized column widths & clear Edit/Delete actions */}
+      <div className="hidden md:block bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 dark:bg-zinc-900/80 text-slate-500 dark:text-zinc-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-slate-200 dark:border-zinc-800">
@@ -188,7 +286,13 @@ export default function CustomerCrm() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-zinc-800 font-sans">
-              {filteredCustomers.map((c, index) => (
+              {filteredCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="text-center py-12 text-slate-400 font-medium">
+                    No customers match your search.
+                  </td>
+                </tr>
+              ) : filteredCustomers.map((c, index) => (
                 <tr key={c.id} className="hover:bg-indigo-50/30 dark:hover:bg-zinc-900/60 transition group">
                   <td className="py-3 px-2.5 font-mono font-bold text-center text-slate-400 dark:text-zinc-500 whitespace-nowrap">{index + 1}.</td>
                   <td className="py-3 px-2.5 font-mono font-extrabold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">{c.id}</td>

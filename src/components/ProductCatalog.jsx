@@ -5,6 +5,31 @@ import {
   Truck, Tag, Bell, Sliders, Edit, Trash2, CheckCircle2
 } from 'lucide-react';
 
+/* Compact definition row used by mobile cards */
+const Field = ({ label, value, mono, accent }) => (
+  <div className="flex items-center justify-between gap-3 py-1.5 text-xs border-b border-slate-100/70 dark:border-zinc-800/50 last:border-0 min-w-0">
+    <span className="text-[10px] text-slate-400 uppercase font-bold shrink-0">{label}</span>
+    <span className={`text-right font-semibold min-w-0 truncate ${mono ? 'font-mono ' : ''}${accent ? accent : 'text-slate-700 dark:text-zinc-200'}`}>
+      {value || '-'}
+    </span>
+  </div>
+);
+
+/* Small icon action button (edit / delete) reused in mobile cards */
+const CardIconBtn = ({ onClick, danger, children, title }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    className={`p-2 rounded-xl transition shrink-0 ${
+      danger
+        ? 'text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-zinc-800'
+        : 'text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-zinc-800'
+    }`}
+  >
+    {children}
+  </button>
+);
+
 export default function ProductCatalog() {
   const { 
     products, addProduct, updateProduct, deleteProduct,
@@ -220,8 +245,169 @@ export default function ProductCatalog() {
         </div>
       </div>
 
-      {/* Main Table Content Container */}
-      <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xs">
+      {/* MOBILE CARD LIST (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {activeSubTab === 'products' && products
+          .filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map((p) => (
+            <div key={p.id} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] text-slate-400 font-bold uppercase">{p.id}</div>
+                  <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{p.name}</div>
+                </div>
+                <div className="flex items-center shrink-0 space-x-0.5">
+                  <CardIconBtn onClick={() => handleOpenEdit(p, 'product')} title="Edit Product"><Edit className="w-4 h-4" /></CardIconBtn>
+                  <CardIconBtn danger title="Delete Product" onClick={() => { if (confirm(`Are you sure you want to delete product "${p.name}"?`)) deleteProduct(p.id); }}><Trash2 className="w-4 h-4" /></CardIconBtn>
+                </div>
+              </div>
+              <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+                <Field label="Category" value={p.category} accent="text-indigo-600 dark:text-indigo-400" />
+                <Field label="Required Fields" value={p.deliveryMethod} />
+                <Field label="Fixed Cost" mono value={p.costPrice ? `${p.costPrice.toLocaleString()} MMK` : '-'} />
+                <Field label="Selling Price" mono accent="text-orange-600 dark:text-orange-400" value={p.sellingPrice ? `${p.sellingPrice.toLocaleString()} MMK` : '-'} />
+                <Field label="Household" mono value={p.householdCode || `Default (${p.plan})`} />
+              </div>
+            </div>
+          ))}
+
+        {activeSubTab === 'categories' && categoriesList.map((cat) => (
+          <div key={cat.code} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-slate-400 font-bold">{cat.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{cat.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-mono font-extrabold bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                  {cat.count} Products
+                </span>
+                <CardIconBtn title="Edit"><Edit className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Description" value={cat.note} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'households' && households.map((h) => (
+          <div key={h.id} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-orange-600 dark:text-orange-400 font-extrabold">{h.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{h.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Active Pool</span>
+                <CardIconBtn onClick={() => handleOpenEdit(h, 'household')} title="Edit Household"><Edit className="w-4 h-4" /></CardIconBtn>
+                <CardIconBtn danger title="Delete Household" onClick={() => { if (confirm(`Delete household ${h.name}?`)) deleteHousehold(h.id); }}><Trash2 className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Admin Note" value={h.adminNote || 'Active family slot'} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'plans' && plansList.map((plan) => (
+          <div key={plan.code} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-slate-400 font-bold">{plan.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{plan.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-mono font-extrabold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">{plan.duration} Days</span>
+                <CardIconBtn title="Edit"><Edit className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Auto Renew" accent={plan.autoRenew ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'} value={plan.autoRenew ? 'Enabled' : 'Manual'} />
+              <Field label="Description" value={plan.note} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'suppliers' && suppliers.map((s) => (
+          <div key={s.id} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-orange-600 dark:text-orange-400 font-extrabold">{s.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{s.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Verified</span>
+                <CardIconBtn onClick={() => handleOpenEdit(s, 'supplier')} title="Edit Supplier"><Edit className="w-4 h-4" /></CardIconBtn>
+                <CardIconBtn danger title="Delete Supplier" onClick={() => { if (confirm(`Delete supplier ${s.name}?`)) deleteSupplier(s.id); }}><Trash2 className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Admin Note / Contact" value={s.adminNote || 'Verified key distributor'} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'discounts' && discountsList.map((d) => (
+          <div key={d.code} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-slate-400 font-bold">{d.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{d.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-mono font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{d.amount}</span>
+                <CardIconBtn title="Edit"><Edit className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Type" value={d.type} />
+              <Field label="Note" value={d.note} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'reminders' && remindersList.map((rem) => (
+          <div key={rem.code} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-slate-400 font-bold">{rem.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{rem.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{rem.status}</span>
+                <CardIconBtn title="Edit"><Edit className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Trigger" mono accent="text-orange-600 dark:text-orange-400" value={rem.trigger} />
+              <Field label="Description" value={rem.note} />
+            </div>
+          </div>
+        ))}
+
+        {activeSubTab === 'automations' && automationsList.map((auto) => (
+          <div key={auto.code} className="bg-white dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-slate-400 font-bold">{auto.code}</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{auto.name}</div>
+              </div>
+              <div className="flex items-center shrink-0 space-x-0.5">
+                <span className="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{auto.status}</span>
+                <CardIconBtn title="Edit"><Edit className="w-4 h-4" /></CardIconBtn>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-zinc-900/60 rounded-xl px-3 py-1.5 border border-slate-100 dark:border-zinc-800">
+              <Field label="Trigger Event" value={auto.trigger} />
+              <Field label="Automated Action" accent="text-orange-600 dark:text-orange-400" value={auto.action} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Table Content Container (md+) */}
+      <div className="hidden md:block bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           
           {/* TAB 1: PRODUCTS TABLE */}
@@ -576,8 +762,8 @@ export default function ProductCatalog() {
 
       {/* Add New Modal matching activeSubTab */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-xs">
+          <div className="my-auto bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
                 Add New {subTabs.find(t => t.id === activeSubTab)?.label} Entry
@@ -802,8 +988,8 @@ export default function ProductCatalog() {
 
       {/* EDIT MODAL DIALOG */}
       {editingItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl animate-fade-in-scale">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="my-auto bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl animate-fade-in-scale max-h-[calc(100vh-2rem)] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
               <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
                 <Edit className="w-4 h-4 text-orange-500" />

@@ -168,8 +168,79 @@ export default function RefundCalculator() {
         </div>
 
         {/* Right Column: All Accounts Prorated Refund Overview Table */}
-        <div className="xl:col-span-8">
-          <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
+        <div className="xl:col-span-8 space-y-3">
+          {/* MOBILE CARD LIST (md:hidden) */}
+          <div className="md:hidden space-y-3">
+            {filteredOrders.length === 0 ? (
+              <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl p-8 text-center text-xs text-slate-400 font-medium">
+                No orders match your search.
+              </div>
+            ) : (
+              filteredOrders.map((o) => {
+                const remDays = getRemainingWarrantyDays(o.endDate);
+                const netPaid = (o.sellingPrice || 0) - (o.discount || 0);
+                const estRefund = o.warrantyDays > 0 ? Math.round((remDays / o.warrantyDays) * netPaid) : 0;
+
+                return (
+                  <div key={o.id} className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs transition-colors duration-200">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-zinc-800 pb-2.5">
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{o.customerName}</div>
+                        <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-bold">{o.receiptId}</div>
+                      </div>
+                      <span className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold inline-block ${
+                        remDays === 0
+                          ? 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'
+                          : remDays <= 7
+                            ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 animate-pulse'
+                            : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                      }`}>
+                        {remDays} / {o.warrantyDays} Days
+                      </span>
+                    </div>
+
+                    {/* Product + Paid */}
+                    <div className="flex items-start justify-between gap-2 text-xs">
+                      <div className="min-w-0">
+                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Product</span>
+                        <span className="block font-bold text-slate-900 dark:text-white truncate">{o.productName}</span>
+                        <span className="block text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold truncate">{o.plan}</span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Net Paid</span>
+                        <span className="block font-mono font-extrabold text-slate-700 dark:text-zinc-300">{netPaid.toLocaleString()} MMK</span>
+                      </div>
+                    </div>
+
+                    {/* Estimated Refund + Calculate */}
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-zinc-800 gap-2">
+                      <div>
+                        <span className="block text-[10px] text-slate-400 uppercase font-bold">Est. Refund</span>
+                        <span className="block font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">{estRefund.toLocaleString()} MMK</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedOrderId(o.id);
+                          setCustomDaysLeft('');
+                          setCustomTotalDays('');
+                          setCustomPricePaid('');
+                          const main = document.querySelector('main');
+                          if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="shrink-0 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold rounded-xl transition shadow-xs flex items-center space-x-1.5"
+                      >
+                        <Calculator className="w-4 h-4" />
+                        <span>Calculate</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="hidden md:block bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
             <div className="p-3.5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
               <h2 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
                 <ArrowRightLeft className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -191,7 +262,13 @@ export default function RefundCalculator() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
-                  {filteredOrders.map((o) => {
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="text-center py-12 text-slate-400 font-sans font-medium">
+                        No orders match your search.
+                      </td>
+                    </tr>
+                  ) : filteredOrders.map((o) => {
                     const remDays = getRemainingWarrantyDays(o.endDate);
                     const netPaid = (o.sellingPrice || 0) - (o.discount || 0);
                     const estRefund = o.warrantyDays > 0 ? Math.round((remDays / o.warrantyDays) * netPaid) : 0;

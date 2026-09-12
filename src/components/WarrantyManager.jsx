@@ -76,8 +76,92 @@ export default function WarrantyManager() {
         </div>
       </div>
 
-      {/* Main Table: All Active Accounts Warranty & Reminders */}
-      <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
+      {/* MOBILE CARD LIST (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {filteredOrders.length === 0 ? (
+          <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl p-8 text-center text-xs text-slate-400 font-medium">
+            No accounts match your search.
+          </div>
+        ) : (
+          filteredOrders.map((o) => {
+            const remainingDays = getRemainingWarrantyDays(o.endDate);
+            const isExpiring = remainingDays > 0 && remainingDays <= 7;
+
+            return (
+              <div key={o.id} className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs transition-colors duration-200">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+                  <div className="min-w-0">
+                    <div className="font-bold text-slate-900 dark:text-white text-sm truncate">{o.customerName}</div>
+                    <div className="text-[10px] text-purple-700 dark:text-purple-400 font-mono font-bold">{o.receiptId}</div>
+                  </div>
+
+                  {remainingDays === 0 ? (
+                    <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">
+                      Expired
+                    </span>
+                  ) : isExpiring ? (
+                    <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 animate-pulse">
+                      {remainingDays} / {o.warrantyDays} Days
+                    </span>
+                  ) : (
+                    <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                      {remainingDays} / {o.warrantyDays} Days
+                    </span>
+                  )}
+                </div>
+
+                {/* Product + Warranty Period */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="min-w-0">
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold">Product</span>
+                    <span className="block font-bold text-slate-900 dark:text-white truncate">{o.productName}</span>
+                    <span className="block text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold truncate">{o.plan}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold">Warranty Period</span>
+                    <span className="block font-mono text-slate-600 dark:text-zinc-400 text-[11px]">{o.startDate}</span>
+                    <span className="block font-mono text-slate-600 dark:text-zinc-400 text-[11px]">→ <span className="font-bold text-slate-900 dark:text-white">{o.endDate}</span></span>
+                  </div>
+                </div>
+
+                {/* Account Login / Link Box */}
+                <div className="bg-slate-50 dark:bg-zinc-900/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-zinc-800 font-mono text-xs flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-slate-400 font-sans font-bold shrink-0">Login / Link:</span>
+                  <span className="text-slate-800 dark:text-zinc-200 font-bold truncate" title={o.accountEmail || o.activationUrl || ''}>
+                    {o.accountEmail || o.activationUrl || 'N/A'}
+                  </span>
+                </div>
+
+                {/* Reminded Toggle + Extend */}
+                <div className="flex items-center justify-between pt-1 gap-2">
+                  <label className="flex items-center space-x-2 cursor-pointer select-none min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={!!o.isReminded}
+                      onChange={() => toggleReminded(o.id)}
+                      className="w-4 h-4 rounded text-indigo-600 accent-indigo-600 cursor-pointer shrink-0"
+                    />
+                    <span className="text-xs text-slate-600 dark:text-zinc-400 font-semibold">
+                      {o.isReminded ? 'Reminded' : 'Mark Reminded'}
+                    </span>
+                  </label>
+                  <button
+                    onClick={() => handleOpenExtend(o)}
+                    className="flex items-center space-x-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-extrabold rounded-xl transition shadow-xs shrink-0"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>+ Extend</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Main Table: All Active Accounts Warranty & Reminders (md+) */}
+      <div className="hidden md:block bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xs">
         <div className="p-3.5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
           <h2 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center space-x-2">
             <ShieldAlert className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -100,7 +184,13 @@ export default function WarrantyManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
-              {filteredOrders.map((o) => {
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-12 text-slate-400 font-sans font-medium">
+                    No accounts match your search.
+                  </td>
+                </tr>
+              ) : filteredOrders.map((o) => {
                 const remainingDays = getRemainingWarrantyDays(o.endDate);
                 const isExpiring = remainingDays > 0 && remainingDays <= 7;
 
@@ -162,8 +252,8 @@ export default function WarrantyManager() {
 
       {/* Extension / Renewal Modal */}
       {extendingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-xs">
+          <div className="my-auto bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto">
             <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
               Issue Monthly Renewal for {extendingOrder.customerName}
             </h2>
