@@ -109,29 +109,29 @@ export default function CashierCheckout() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
-      {/* Hero Card Banner */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+      {/* Hero Card Banner (Compact & Optimized) */}
+      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-white rounded-2xl p-3.5 sm:p-5 shadow-md relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-64 h-64 bg-purple-500/15 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
         
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold text-indigo-200 border border-white/10 uppercase tracking-wider mb-3 inline-block">
-              ✨ Cashier Workspace
-            </span>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-              Create Order & Issue Receipt
-            </h1>
-            <p className="text-indigo-200 text-sm mt-1.5 max-w-xl">
-              Fill account credentials, select product plan, and auto-generate thermal slips & warranty claims.
-            </p>
+        <div className="relative z-10 flex flex-row items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center space-x-2">
+              <span className="px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-lg text-[10px] sm:text-xs font-bold text-indigo-200 border border-white/10 uppercase tracking-wider shrink-0">
+                ✨ Cashier
+              </span>
+              <h1 className="text-sm sm:text-xl font-extrabold tracking-tight truncate">
+                Create Order & Issue Receipt
+              </h1>
+            </div>
           </div>
 
           <button
             onClick={() => setActiveTab('database')}
-            className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold border border-white/20 transition flex items-center space-x-2"
+            className="shrink-0 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold border border-white/20 transition flex items-center space-x-1.5"
           >
-            <span>View Master Sales Sheet</span>
-            <ArrowRight className="w-4 h-4" />
+            <span className="hidden sm:inline">View Master Sales Sheet</span>
+            <span className="sm:hidden text-[11px]">Sales Sheet</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
