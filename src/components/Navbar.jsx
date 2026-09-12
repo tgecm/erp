@@ -7,11 +7,12 @@ import {
   Menu,
   X,
   Sun,
-  Moon
+  Moon,
+  LogOut
 } from 'lucide-react';
 
 export default function Navbar() {
-  const { orders, toggleMobileMenu, isMobileMenuOpen, theme, toggleTheme } = useErpStore();
+  const { orders, toggleMobileMenu, isMobileMenuOpen, theme, toggleTheme, user, logout } = useErpStore();
 
   const totalNetProfit = orders.reduce((sum, o) => sum + (o.netProfit || 0), 0);
 
@@ -70,16 +71,29 @@ export default function Navbar() {
             <RefreshCw className="w-4 h-4" />
           </button>
 
-          {/* User Profile Badge */}
-          <div className="flex items-center space-x-2 pl-1.5 sm:pl-2 border-l border-white/20">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
-              ML
+          {/* User Profile & Logout Button */}
+          {user ? (
+            <div className="flex items-center space-x-2 pl-1.5 sm:pl-2 border-l border-white/20">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-purple-700 flex items-center justify-center font-bold text-xs shadow-xs shrink-0 uppercase">
+                {user.name ? user.name.slice(0, 2) : 'CM'}
+              </div>
+              <div className="text-left hidden sm:block">
+                <div className="text-xs font-extrabold text-white leading-none truncate max-w-[100px]">{user.name || user.username}</div>
+                <div className="text-[9px] text-purple-200 font-bold uppercase tracking-wider leading-tight">{user.role || 'Staff'}</div>
+              </div>
+              <button
+                onClick={logout}
+                className="p-1.5 sm:p-2 bg-white/10 hover:bg-rose-500 text-white rounded-xl transition border border-white/15 ml-1"
+                title="Log Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <div className="text-left hidden sm:block">
-              <div className="text-xs font-extrabold text-white leading-none">maunglenn</div>
-              <div className="text-[9px] text-purple-200 font-bold uppercase tracking-wider leading-tight">SUPERADMIN</div>
+          ) : (
+            <div className="flex items-center space-x-2 pl-1.5 sm:pl-2 border-l border-white/20">
+              <div className="text-xs font-bold text-purple-100">Guest</div>
             </div>
-          </div>
+          )}
 
         </div>
 

@@ -45,6 +45,40 @@ export const useErpStore = create((set, get) => ({
   activeTab: 'dashboard', // dashboard, cashier, database, warranty, refunds, customers, brain, finance
   setActiveTab: (tab) => set({ activeTab: tab, isMobileMenuOpen: false }),
 
+  // Auth State
+  user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('cm_user') || 'null') : null,
+  token: typeof window !== 'undefined' ? localStorage.getItem('cm_token') || null : null,
+
+  login: async (username, password) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Login failed');
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cm_user', JSON.stringify(data.user));
+        localStorage.setItem('cm_token', data.token);
+      }
+      set({ user: data.user, token: data.token });
+      return { success: true, user: data.user };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  },
+
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cm_user');
+      localStorage.removeItem('cm_token');
+    }
+    set({ user: null, token: null, activeTab: 'dashboard' });
+  },
+
   // Theme State
   theme: typeof window !== 'undefined' ? (localStorage.getItem('dc_theme') || 'light') : 'light',
   toggleTheme: () => {

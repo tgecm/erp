@@ -14,9 +14,10 @@ import CustomerCrm from './components/CustomerCrm';
 import ProductCatalog from './components/ProductCatalog';
 import FinanceDashboard from './components/FinanceDashboard';
 import ReceiptModal from './components/ReceiptModal';
+import LoginModal from './components/LoginModal';
 
 export default function App() {
-  const { activeTab, theme, fetchDb } = useErpStore();
+  const { activeTab, theme, fetchDb, user } = useErpStore();
 
   useEffect(() => {
     fetchDb();
@@ -86,6 +87,9 @@ export default function App() {
 
       {/* Thermal Receipt Print Slip Modal */}
       <ReceiptModal />
+
+      {/* Auth Login Modal */}
+      <LoginModal />
     </div>
   );
 }

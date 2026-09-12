@@ -1,0 +1,221 @@
+import React, { useState } from 'react';
+import { useErpStore } from '../store/useErpStore';
+import { 
+  Lock, 
+  User, 
+  ShieldCheck, 
+  KeyRound, 
+  ArrowRight, 
+  AlertCircle,
+  Store,
+  Sparkles
+} from 'lucide-react';
+
+export default function LoginModal() {
+  const { login, user } = useErpStore();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginMode, setLoginMode] = useState('password'); // 'password' or 'pin'
+  const [pin, setPin] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  if (user) return null; // If already authenticated, do not show login modal
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    const loginInput = loginMode === 'pin' ? username || 'cashier1' : username;
+    const passInput = loginMode === 'pin' ? pin : password;
+
+    if (!loginInput || !passInput) {
+      setError('Please enter both login credentials.');
+      return;
+    }
+
+    setLoading(true);
+    const result = await login(loginInput, passInput);
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || 'Invalid credentials or connection error.');
+    }
+  };
+
+  const handleQuickDemo = (demoUser, demoPass) => {
+    setUsername(demoUser);
+    setPassword(demoPass);
+    setError('');
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fade-in select-none">
+      <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl space-y-0 relative transition-colors duration-200">
+        
+        {/* Top Header Banner */}
+        <div className="p-6 bg-gradient-to-r from-purple-700 via-indigo-700 to-violet-800 text-white text-center space-y-2 relative overflow-hidden">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-inner mb-1">
+            <Store className="w-6 h-6 text-purple-200" />
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight uppercase">
+            CROSSMART <span className="text-purple-200 font-medium">ERP</span>
+          </h1>
+          <p className="text-xs text-purple-100 font-medium">
+            Cashier & Multi-Shop Operations System
+          </p>
+        </div>
+
+        {/* Login Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+
+          {/* Error Alert */}
+          {error && (
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 rounded-2xl text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center space-x-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Login Mode Toggle: Password vs Quick Cashier PIN */}
+          <div className="flex bg-slate-100 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-800 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setLoginMode('password')}
+              className={`flex-1 py-2 rounded-xl transition ${loginMode === 'password' ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+            >
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setLoginMode('pin')}
+              className={`flex-1 py-2 rounded-xl transition ${loginMode === 'pin' ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+            >
+              Cashier PIN Mode
+            </button>
+          </div>
+
+          {loginMode === 'password' ? (
+            <div className="space-y-4">
+              {/* Username / Email Input */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Username or Email
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g. merikolenn@gmail.com or admin"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Password Input */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Cashier Username */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Cashier Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. cashier1"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                />
+              </div>
+
+              {/* 4-Digit PIN Input */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  4-Digit Quick PIN
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="password"
+                    maxLength={4}
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    placeholder="1234"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-center text-lg font-mono font-bold tracking-widest text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Submit Login Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-500 hover:to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition active:scale-98 disabled:opacity-50"
+          >
+            {loading ? (
+              <span>Authenticating...</span>
+            ) : (
+              <>
+                <span>Sign In to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+
+          {/* Quick Demo Helper Presets */}
+          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/80 space-y-2">
+            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center">
+              Quick Logins (Development)
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => handleQuickDemo('merikolenn@gmail.com', 'admin123')}
+                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
+              >
+                Project Owner
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemo('admin', 'admin123')}
+                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
+              >
+                Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemo('cashier1', 'cashier123')}
+                className="py-1.5 px-2 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 rounded-xl transition text-center truncate"
+              >
+                Staff Cashier
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  );
+}
