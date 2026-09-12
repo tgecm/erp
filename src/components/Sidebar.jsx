@@ -12,11 +12,13 @@ import {
   Layers, 
   TrendingUp,
   X,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { activeTab, setActiveTab, isMobileMenuOpen, setIsMobileMenuOpen } = useErpStore();
+  const { activeTab, setActiveTab, isMobileMenuOpen, setIsMobileMenuOpen, theme, toggleTheme } = useErpStore();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -89,8 +91,26 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Footer System Info */}
-      <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-2 text-center">
+      {/* Footer System Info & Theme Toggle */}
+      <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+        {/* Dark / Light Mode Switcher */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition shadow-xs active:scale-98"
+        >
+          <div className="flex items-center space-x-2.5">
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4 text-indigo-600" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-400" />
+            )}
+            <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+          </div>
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            {theme}
+          </span>
+        </button>
+
         <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 text-center space-y-0.5">
           <div className="text-xs font-bold text-slate-800 dark:text-slate-200">Digital City ERP</div>
           <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Standalone Operations v2.0</div>

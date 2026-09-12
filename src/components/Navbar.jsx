@@ -33,9 +33,6 @@ export default function Navbar() {
 
           {/* Logo & Title */}
           <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white font-extrabold shrink-0 shadow-xs">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
                 <span className="font-extrabold text-xs xs:text-sm sm:text-lg text-white tracking-tight leading-none uppercase truncate">
@@ -53,7 +50,7 @@ export default function Navbar() {
 
         </div>
 
-        {/* Right: Tickers, Theme Switcher & User Profile */}
+        {/* Right: Tickers & User Profile */}
         <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
           
           {/* Revenue Ticker (Desktop) */}
@@ -66,20 +63,6 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-
-          {/* Light / Dark Mode Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition flex items-center space-x-1 border border-white/15"
-            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
-            aria-label="Toggle Theme Mode"
-          >
-            {theme === 'light' ? (
-              <Moon className="w-4 h-4 text-purple-200" />
-            ) : (
-              <Sun className="w-4 h-4 text-amber-300" />
-            )}
-          </button>
 
           {/* Refresh Button */}
           <button 
