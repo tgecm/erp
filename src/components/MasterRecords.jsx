@@ -8,6 +8,7 @@ import {
   Trash2, 
   ShieldCheck, 
   Eye,
+  Sliders,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
