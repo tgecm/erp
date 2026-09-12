@@ -42,37 +42,33 @@ export default function ExpiringAccounts() {
   return (
     <div className="w-full max-w-full space-y-4 pb-12">
       
-      {/* Top Banner Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 p-4 rounded-2xl shadow-xs">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-2xl">
-            <AlertTriangle className="w-6 h-6 animate-pulse" />
+      {/* Top Banner Toolbar (Compact & Optimized) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 p-3 sm:p-4 rounded-2xl shadow-xs">
+        <div className="flex items-center space-x-2 min-w-0">
+          <div className="p-1.5 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-xl shrink-0">
+            <AlertTriangle className="w-5 h-5 animate-pulse" />
           </div>
-          <div>
-            <h1 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
-              <span>Urgent Expiry Alerts (Within 7 Days)</span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-extrabold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                {expiringOrders.length} Accounts Urgent
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center space-x-2">
+              <h1 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
+                Urgent Expiry Alerts
+              </h1>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-mono font-extrabold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shrink-0">
+                {expiringOrders.length} Urgent
               </span>
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              Accounts requiring customer renewal notifications & monthly replacement credentials within 7 days.
-            </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          {/* Search */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search expiring accounts..."
-              className="bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-rose-500 w-44 sm:w-56 font-medium"
-            />
-          </div>
+        <div className="relative shrink-0">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search expiring accounts..."
+            className="w-full sm:w-56 bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-purple-600 font-medium"
+          />
         </div>
       </div>
 

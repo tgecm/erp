@@ -175,43 +175,40 @@ export default function ProductCatalog() {
   return (
     <div className="space-y-6 max-w-full">
       
-      {/* Top Controls Header matching Screenshot */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-4 sm:p-5 rounded-3xl shadow-xs">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-orange-500/10 text-orange-500 rounded-2xl">
-            <Database className="w-6 h-6" />
+      {/* Top Banner Toolbar (Compact & Optimized) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-zinc-800 p-3 sm:p-4 rounded-2xl shadow-xs transition-colors duration-200">
+        <div className="flex items-center space-x-2 min-w-0">
+          <div className="p-1.5 bg-orange-500/10 text-orange-500 rounded-xl shrink-0">
+            <Database className="w-5 h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
-              <span>Brain Database ({subTabs.find(t => t.id === activeSubTab)?.label})</span>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
+              Brain Database ({subTabs.find(t => t.id === activeSubTab)?.label})
             </h1>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-              Master configurations for Products, Plans, Suppliers, and Discounts.
-            </p>
           </div>
         </div>
 
         {/* Toolbar controls */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search..."
-              className="bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-orange-500 w-36 sm:w-44"
+              className="w-full sm:w-44 bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-orange-500"
             />
           </div>
 
-          {/* Add New Button matching Screenshot */}
+          {/* Add New Button */}
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1.5 shadow-md shadow-orange-600/20 transition"
+            className="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-extrabold flex items-center space-x-1 shadow-xs transition shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            <span>+ Add New</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add New</span>
           </button>
         </div>
       </div>
