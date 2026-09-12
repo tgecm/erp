@@ -1,518 +1,633 @@
 import React, { useState, useEffect } from 'react';
 import { useErpStore } from '../store/useErpStore';
-import { 
-  Lock, 
-  User, 
-  Mail,
-  ArrowRight, 
-  AlertCircle,
-  Store,
-  CheckCircle2,
-  RefreshCw,
-  Clock,
-  Sparkles,
-  Loader2
+import {
+  Lock, User, Mail, ArrowRight, AlertCircle, CheckCircle2,
+  RefreshCw, Clock, Loader2, Eye, EyeOff, ShieldCheck,
+  ChevronLeft, ShoppingBag, BarChart3, Users, Package
 } from 'lucide-react';
 
 const API_BASE = typeof window !== 'undefined'
   ? (window.location.port === '3000' ? 'http://localhost:4000/api' : '/api')
   : '/api';
 
+/* ═══════════════════════════════════════════════════
+   MAIN LOGIN PAGE — Full-screen, split layout
+═══════════════════════════════════════════════════ */
 export default function LoginModal() {
   const { login, user } = useErpStore();
-  const [viewMode, setViewMode] = useState('login'); // 'login' | 'register' | 'pending_verification'
-  
-  // Form State
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [view, setView] = useState('login');
+
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // Verification State
-  const [verificationEmail, setVerificationEmail] = useState('');
+  const [confirm, setConfirm]   = useState('');
+  const [showPw, setShowPw]     = useState(false);
+  const [showCpw, setShowCpw]   = useState(false);
+
+  const [verEmail, setVerEmail]   = useState('');
   const [expiresAt, setExpiresAt] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in seconds
-  
-  const [loading, setLoading] = useState(false);
+  const [timeLeft, setTimeLeft]   = useState(180);
+
+  const [loading, setLoading]     = useState(false);
   const [resending, setResending] = useState(false);
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const [error, setError]         = useState('');
+  const [success, setSuccess]     = useState('');
 
-  if (user) return null; // Hide modal if already logged in
+  if (user) return null;
 
-  // --- Countdown Timer Effect ---
+  /* ── Countdown ── */
   useEffect(() => {
-    let timer = null;
-    if (viewMode === 'pending_verification' && expiresAt) {
-      timer = setInterval(() => {
-        const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
-        setTimeLeft(remaining);
-        if (remaining <= 0) {
-          clearInterval(timer);
-        }
-      }, 1000);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [viewMode, expiresAt]);
+    if (view !== 'pending_verification' || !expiresAt) return;
+    const t = setInterval(() => {
+      const r = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+      setTimeLeft(r);
+      if (r <= 0) clearInterval(t);
+    }, 1000);
+    return () => clearInterval(t);
+  }, [view, expiresAt]);
 
-  // --- Polling Verification Status Effect ---
+  /* ── Poll verification ── */
   useEffect(() => {
-    let pollInterval = null;
-    if (viewMode === 'pending_verification' && verificationEmail) {
-      pollInterval = setInterval(async () => {
-        try {
-          const res = await fetch(`${API_BASE}/auth/check-verification-status?email=${encodeURIComponent(verificationEmail)}`);
-          const data = await res.json();
+    if (view !== 'pending_verification' || !verEmail) return;
+    const t = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/auth/check-verification-status?email=${encodeURIComponent(verEmail)}`);
+        const d = await res.json();
+        if (d.isVerified) { clearInterval(t); setSuccess('Verified! Logging in…'); setTimeout(() => login(verEmail, password), 900); }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(t);
+  }, [view, verEmail, password, login]);
 
-          if (data.isVerified) {
-            clearInterval(pollInterval);
-            setSuccessMsg('Email verified! Logging into dashboard...');
-            // Automatically log in with saved password
-            setTimeout(async () => {
-              await login(verificationEmail, password);
-            }, 1000);
-          }
-        } catch (err) {
-          console.error('[Polling Error]:', err);
-        }
-      }, 3000); // Check every 3 seconds
-    }
-    return () => {
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [viewMode, verificationEmail, password, login]);
+  const clear = () => { setError(''); setSuccess(''); };
+  const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 
-  // --- Handle Login Submission ---
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!email.trim() || !password) {
-      setError('Please enter both email/username and password.');
-      return;
-    }
-
+  /* ── Handlers ── */
+  const handleLogin = async e => {
+    e.preventDefault(); clear();
+    if (!email.trim() || !password) { setError('Please fill in all fields.'); return; }
     setLoading(true);
-    const result = await login(email.trim(), password);
+    const r = await login(email.trim(), password);
     setLoading(false);
-
-    if (!result.success) {
-      if (result.requiresVerification) {
-        setVerificationEmail(result.email || email.trim());
-        setViewMode('pending_verification');
-        setExpiresAt(Date.now() + 3 * 60 * 1000);
-        setError('Please click "Verify My Email" in your inbox to complete sign in.');
-      } else {
-        setError(result.error || 'Invalid credentials or connection error.');
-      }
+    if (!r.success) {
+      if (r.requiresVerification) { setVerEmail(r.email || email.trim()); setView('pending_verification'); setExpiresAt(Date.now()+180000); }
+      else setError(r.error || 'Invalid credentials.');
     }
   };
 
-  // --- Handle Registration Submission ---
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!email.trim() || !password) {
-      setError('Please provide an email and password.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
+  const handleRegister = async e => {
+    e.preventDefault(); clear();
+    if (!email.trim() || !password) { setError('Email and password required.'); return; }
+    if (password.length < 6) { setError('Password must be 6+ characters.'); return; }
+    if (password !== confirm) { setError('Passwords do not match.'); return; }
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          password: password
-        })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
       });
-
-      const data = await res.json();
-      setLoading(false);
-
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Registration failed. Please try again.');
-        return;
-      }
-
-      setVerificationEmail(email.trim());
-      setExpiresAt(data.expiresAt || (Date.now() + 3 * 60 * 1000));
-      setTimeLeft(180);
-      setViewMode('pending_verification');
-    } catch (err) {
-      setLoading(false);
-      setError('Connection error. Failed to reach server.');
-    }
+      const d = await res.json(); setLoading(false);
+      if (!res.ok || !d.success) { setError(d.error || 'Registration failed.'); return; }
+      setVerEmail(email.trim()); setExpiresAt(d.expiresAt || Date.now()+180000); setTimeLeft(180); setView('pending_verification');
+    } catch { setLoading(false); setError('Connection error.'); }
   };
 
-  // --- Handle Resend Email ---
-  const handleResendEmail = async () => {
-    setError('');
-    setSuccessMsg('');
-    setResending(true);
-
+  const handleResend = async () => {
+    clear(); setResending(true);
     try {
       const res = await fetch(`${API_BASE}/auth/resend-verification`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: verificationEmail })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verEmail }),
       });
-
-      const data = await res.json();
-      setResending(false);
-
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Failed to resend email.');
-        return;
-      }
-
-      setExpiresAt(data.expiresAt || (Date.now() + 3 * 60 * 1000));
-      setTimeLeft(180);
-      setSuccessMsg('A new 3-minute verification email has been sent!');
-    } catch (err) {
-      setResending(false);
-      setError('Failed to resend verification email.');
-    }
-  };
-
-  // Format Timer mm:ss
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      const d = await res.json(); setResending(false);
+      if (!res.ok || !d.success) { setError(d.error || 'Failed.'); return; }
+      setExpiresAt(d.expiresAt || Date.now()+180000); setTimeLeft(180); setSuccess('New link sent!');
+    } catch { setResending(false); setError('Failed to resend.'); }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-fade-in select-none">
-      <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl space-y-0 relative transition-all duration-300">
-        
-        {/* Top Header Banner */}
-        <div className="p-6 bg-gradient-to-r from-purple-700 via-indigo-700 to-violet-800 text-white text-center space-y-2 relative overflow-hidden">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-inner mb-1">
-            <Store className="w-6 h-6 text-purple-200" />
-          </div>
-          <h1 className="text-2xl font-extrabold tracking-tight uppercase">
-            CROSSMART <span className="text-purple-200 font-medium">ERP</span>
-          </h1>
-          <p className="text-xs text-purple-100 font-medium">
-            Cashier & Multi-Shop Operations System
-          </p>
-        </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap');
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes subtlePulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+        @keyframes grain {
+          0%, 100% { transform: translate(0, 0) }
+          10% { transform: translate(-2%, -2%) }
+          30% { transform: translate(1%, -3%) }
+          50% { transform: translate(-1%, 2%) }
+          70% { transform: translate(3%, 1%) }
+          90% { transform: translate(2%, -1%) }
+        }
+        .login-page * { box-sizing: border-box; margin: 0; padding: 0; }
+        .login-page input::placeholder { color: rgba(120,113,108,0.5); }
+        .login-page input:focus::placeholder { color: rgba(120,113,108,0.3); }
+      `}</style>
 
-        {/* View 1: LOGIN FORM */}
-        {viewMode === 'login' && (
-          <form onSubmit={handleLoginSubmit} className="p-6 space-y-5">
+      <div className="login-page" style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        display: 'flex', fontFamily: "'Inter', system-ui, sans-serif",
+        background: '#0c0a09',
+      }}>
 
-            {/* Mode Switcher */}
-            <div className="flex bg-slate-100 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-800 text-xs font-bold">
-              <button
-                type="button"
-                className="flex-1 py-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs"
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => { setViewMode('register'); setError(''); }}
-                className="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 transition"
-              >
-                Create Account
-              </button>
-            </div>
+        {/* ═══════════════════════════════════════
+            LEFT PANEL — Branding
+        ═══════════════════════════════════════ */}
+        <div style={{
+          flex: '0 0 45%', position: 'relative', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          padding: '48px',
+          background: 'linear-gradient(165deg, #1c1917 0%, #0c0a09 40%, #1a0f0a 100%)',
+        }}
+          className="brand-panel"
+        >
+          {/* Subtle warm ambient glow */}
+          <div style={{
+            position: 'absolute', top: '-20%', right: '-30%',
+            width: '80%', height: '80%',
+            background: 'radial-gradient(circle, rgba(217,119,6,0.08) 0%, transparent 65%)',
+            pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: '-10%', left: '-20%',
+            width: '60%', height: '60%',
+            background: 'radial-gradient(circle, rgba(161,98,7,0.06) 0%, transparent 60%)',
+            pointerEvents: 'none',
+          }} />
 
-            {/* Error Alert */}
-            {error && (
-              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 rounded-2xl text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center space-x-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
+          {/* Film grain texture */}
+          <div style={{
+            position: 'absolute', inset: 0, opacity: 0.03, pointerEvents: 'none',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            animation: 'grain 8s steps(10) infinite',
+          }} />
+
+          {/* Top: Logo */}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '10px',
+                background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <ShoppingBag style={{ width: '20px', height: '20px', color: '#fef3c7' }} />
               </div>
-            )}
-
-            <div className="space-y-4">
-              {/* Email / Username */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Email or Username
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email or Username"
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-500 hover:to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition active:scale-98 disabled:opacity-50"
-            >
-              {loading ? (
-                <span className="flex items-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /> <span>Signing In...</span></span>
-              ) : (
-                <>
-                  <span>Sign In to Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-
-          </form>
-        )}
-
-        {/* View 2: REGISTER FORM */}
-        {viewMode === 'register' && (
-          <form onSubmit={handleRegisterSubmit} className="p-6 space-y-4">
-
-            {/* Mode Switcher */}
-            <div className="flex bg-slate-100 dark:bg-zinc-900 p-1 rounded-2xl border border-slate-200/80 dark:border-zinc-800 text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => { setViewMode('login'); setError(''); }}
-                className="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 transition"
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                className="flex-1 py-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-xs"
-              >
-                Create Account
-              </button>
-            </div>
-
-            {/* Error Alert */}
-            {error && (
-              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800/80 rounded-2xl text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center space-x-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {/* Full Name */}
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. John Doe"
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@domain.com"
-                    required
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Create Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 6 characters"
-                    required
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter password"
-                    required
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-500 hover:to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-2 transition active:scale-98 disabled:opacity-50"
-            >
-              {loading ? (
-                <span className="flex items-center space-x-2"><Loader2 className="w-4 h-4 animate-spin" /> <span>Sending Verification...</span></span>
-              ) : (
-                <>
-                  <span>Create Account & Send Verification Link</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-
-          </form>
-        )}
-
-        {/* View 3: EMAIL VERIFICATION WAITING SCREEN */}
-        {viewMode === 'pending_verification' && (
-          <div className="p-6 space-y-5 text-center">
-
-            {/* Glowing Email Icon */}
-            <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-500 mx-auto">
-              <Mail className="w-8 h-8 animate-bounce" />
-              <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500"></span>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: '#a8a29e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                CrossMart
               </span>
             </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
-                Check Your Email
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-                We sent a verification email to:
-              </p>
-              <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 py-1.5 px-3 rounded-xl inline-block border border-indigo-200 dark:border-indigo-800">
-                {verificationEmail}
-              </p>
-            </div>
+          {/* Center: Hero text */}
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '420px' }}>
+            <h1 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 700,
+              color: '#fafaf9', lineHeight: 1.15, letterSpacing: '-0.02em',
+              marginBottom: '24px',
+            }}>
+              Manage your
+              <br />
+              shops with
+              <br />
+              <span style={{ color: '#d97706' }}>clarity.</span>
+            </h1>
+            <p style={{
+              fontSize: '15px', lineHeight: 1.8, color: '#78716c',
+              fontWeight: 400, maxWidth: '340px',
+            }}>
+              One dashboard for cashier operations, inventory tracking,
+              customer insights, and financial reporting across all your stores.
+            </p>
+          </div>
 
-            <div className="p-4 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl text-left space-y-2">
-              <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Open your inbox & click <strong className="text-indigo-600 dark:text-indigo-400">"Verify My Email"</strong></span>
+          {/* Bottom: Feature pills */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {[
+              { icon: BarChart3, text: 'Live Analytics' },
+              { icon: Users,    text: 'CRM' },
+              { icon: Package,  text: 'Inventory' },
+              { icon: ShoppingBag, text: 'POS' },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} style={{
+                display: 'flex', alignItems: 'center', gap: '7px',
+                padding: '8px 14px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '100px',
+                fontSize: '12px', fontWeight: 500, color: '#78716c',
+              }}>
+                <Icon style={{ width: '13px', height: '13px', color: '#a16207' }} />
+                {text}
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-zinc-800 text-xs">
-                <span className="text-slate-500 dark:text-slate-400 font-medium flex items-center space-x-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Link Expires In:</span>
-                </span>
-                <span className={`font-mono font-black text-sm ${timeLeft <= 30 ? 'text-rose-500 animate-pulse' : 'text-amber-500'}`}>
-                  {formatTime(timeLeft)}
-                </span>
-              </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Listening Status Animation */}
-            <div className="flex items-center justify-center space-x-2 text-xs text-indigo-500 font-bold py-1">
-              <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
-              <span>Waiting for your email verification click...</span>
-            </div>
+          {/* Vertical line accent */}
+          <div style={{
+            position: 'absolute', right: 0, top: '15%', bottom: '15%', width: '1px',
+            background: 'linear-gradient(180deg, transparent 0%, rgba(168,162,158,0.12) 50%, transparent 100%)',
+          }} />
+        </div>
 
-            {/* Messages & Alerts */}
-            {error && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-bold">
-                {error}
+        {/* ═══════════════════════════════════════
+            RIGHT PANEL — Forms
+        ═══════════════════════════════════════ */}
+        <div style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center',
+          padding: '48px',
+          background: '#0c0a09',
+          overflowY: 'auto',
+          position: 'relative',
+        }}>
+          <div style={{ width: '100%', maxWidth: '380px', animation: 'fadeIn 0.4s ease' }}>
+
+            {/* ── LOGIN ── */}
+            {view === 'login' && (
+              <div key="login">
+                <div style={{ marginBottom: '36px' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fafaf9', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+                    Welcome back
+                  </h2>
+                  <p style={{ fontSize: '14px', color: '#78716c', fontWeight: 400 }}>
+                    Sign in to your account to continue
+                  </p>
+                </div>
+
+                <AlertMsg type="error" msg={error} />
+                <AlertMsg type="ok" msg={success} />
+
+                <form onSubmit={handleLogin}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                    <Field
+                      id="li-em" label="Email or Username" icon={User} type="text"
+                      value={email} onChange={setEmail} required
+                    />
+                    <Field
+                      id="li-pw" label="Password" icon={Lock}
+                      type={showPw ? 'text' : 'password'}
+                      value={password} onChange={setPassword} required
+                      right={<EyeBtn on={showPw} flip={() => setShowPw(v=>!v)} />}
+                    />
+                  </div>
+
+                  <Btn loading={loading} text="Sign In" loadingText="Signing in…" />
+                </form>
+
+                <div style={{ textAlign: 'center', marginTop: '28px' }}>
+                  <span style={{ fontSize: '13px', color: '#57534e' }}>
+                    Don't have an account?{' '}
+                    <button type="button" onClick={() => { setView('register'); clear(); }}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: '#d97706', fontWeight: 600, fontSize: '13px',
+                        textDecoration: 'none',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      Create one
+                    </button>
+                  </span>
+                </div>
               </div>
             )}
-            {successMsg && (
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-                {successMsg}
+
+            {/* ── REGISTER ── */}
+            {view === 'register' && (
+              <div key="register" style={{ animation: 'fadeIn 0.35s ease' }}>
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#fafaf9', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+                    Create account
+                  </h2>
+                  <p style={{ fontSize: '14px', color: '#78716c', fontWeight: 400 }}>
+                    Set up your credentials to get started
+                  </p>
+                </div>
+
+                <AlertMsg type="error" msg={error} />
+
+                <form onSubmit={handleRegister}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
+                    <Field id="rg-nm" label="Full Name" icon={User} value={name} onChange={setName} />
+                    <Field id="rg-em" label="Email Address" icon={Mail} type="email" value={email} onChange={setEmail} required />
+                    <Field
+                      id="rg-pw" label="Password" icon={Lock}
+                      type={showPw ? 'text' : 'password'}
+                      value={password} onChange={setPassword} required
+                      right={<EyeBtn on={showPw} flip={() => setShowPw(v=>!v)} />}
+                    />
+                    <Field
+                      id="rg-cp" label="Confirm Password" icon={ShieldCheck}
+                      type={showCpw ? 'text' : 'password'}
+                      value={confirm} onChange={setConfirm} required
+                      right={<EyeBtn on={showCpw} flip={() => setShowCpw(v=>!v)} />}
+                    />
+                  </div>
+
+                  <Btn loading={loading} text="Create Account" loadingText="Sending verification…" />
+                </form>
+
+                <div style={{ textAlign: 'center', marginTop: '28px' }}>
+                  <span style={{ fontSize: '13px', color: '#57534e' }}>
+                    Already have an account?{' '}
+                    <button type="button" onClick={() => { setView('login'); clear(); }}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: '#d97706', fontWeight: 600, fontSize: '13px',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                      onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                    >
+                      Sign in
+                    </button>
+                  </span>
+                </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={handleResendEmail}
-                disabled={resending || (timeLeft > 120)} // Allow resend after 1 minute or when expired
-                className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition disabled:opacity-40"
-              >
-                {resending ? (
-                  <span>Resending Email...</span>
-                ) : (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Resend Verification Email</span>
-                  </>
-                )}
-              </button>
+            {/* ── VERIFICATION ── */}
+            {view === 'pending_verification' && (
+              <div key="verify" style={{ animation: 'fadeIn 0.35s ease' }}>
+                {/* Mail icon */}
+                <div style={{ marginBottom: '28px', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    width: '72px', height: '72px', borderRadius: '50%',
+                    background: 'rgba(217,119,6,0.1)',
+                    border: '1px solid rgba(217,119,6,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    position: 'relative',
+                  }}>
+                    <Mail style={{ width: '32px', height: '32px', color: '#d97706' }} />
+                    {/* Live ping */}
+                    <div style={{
+                      position: 'absolute', top: '2px', right: '2px',
+                      width: '14px', height: '14px', borderRadius: '50%',
+                      background: '#16a34a',
+                      border: '2.5px solid #0c0a09',
+                    }}>
+                      <div style={{
+                        position: 'absolute', inset: '-3px', borderRadius: '50%',
+                        background: 'rgba(22,163,74,0.4)',
+                        animation: 'subtlePulse 1.5s ease-in-out infinite',
+                      }} />
+                    </div>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => { setViewMode('login'); setError(''); setSuccessMsg(''); }}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-semibold"
-              >
-                Back to Sign In
-              </button>
-            </div>
+                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#fafaf9', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+                    Check your email
+                  </h2>
+                  <p style={{ fontSize: '13.5px', color: '#78716c', lineHeight: 1.7, marginBottom: '14px' }}>
+                    We sent a verification link to
+                  </p>
+                  <div style={{
+                    display: 'inline-block', padding: '6px 16px',
+                    background: 'rgba(217,119,6,0.08)',
+                    border: '1px solid rgba(217,119,6,0.18)',
+                    borderRadius: '8px',
+                    fontSize: '13.5px', fontWeight: 600, color: '#d97706',
+                  }}>
+                    {verEmail}
+                  </div>
+                </div>
+
+                {/* Instruction card */}
+                <div style={{
+                  padding: '18px 20px', marginBottom: '20px',
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '14px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                    <CheckCircle2 style={{ width: '15px', height: '15px', color: '#16a34a', flexShrink: 0 }} />
+                    <span style={{ fontSize: '13px', color: '#a8a29e', fontWeight: 500 }}>
+                      Click <strong style={{ color: '#d97706' }}>"Verify My Email"</strong> in your inbox
+                    </span>
+                  </div>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#57534e' }}>
+                      <Clock style={{ width: '12px', height: '12px' }} />
+                      Expires in
+                    </div>
+                    <span style={{
+                      fontFamily: 'monospace', fontWeight: 700, fontSize: '15px',
+                      color: timeLeft <= 30 ? '#ef4444' : '#d97706',
+                    }}>
+                      {fmt(timeLeft)}
+                    </span>
+                  </div>
+                </div>
+
+                <AlertMsg type="error" msg={error} />
+                <AlertMsg type="ok" msg={success} />
+
+                {/* Listening */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: '8px', marginBottom: '20px',
+                  fontSize: '12px', color: '#78716c', fontWeight: 500,
+                }}>
+                  <Loader2 style={{ width: '13px', height: '13px', animation: 'spin 1s linear infinite', color: '#a16207' }} />
+                  Waiting for verification…
+                </div>
+
+                {/* Buttons */}
+                <button type="button" onClick={handleResend}
+                  disabled={resending || timeLeft > 120}
+                  style={{
+                    width: '100%', padding: '12px',
+                    background: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '10px', cursor: (resending || timeLeft > 120) ? 'not-allowed' : 'pointer',
+                    fontSize: '13px', fontWeight: 600,
+                    color: (resending || timeLeft > 120) ? '#44403c' : '#a8a29e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    transition: 'all 0.15s ease',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {resending
+                    ? <><Loader2 style={{ width: '13px', height: '13px', animation: 'spin 1s linear infinite' }} /> Resending…</>
+                    : <><RefreshCw style={{ width: '13px', height: '13px' }} /> Resend email</>
+                  }
+                </button>
+                <button type="button" onClick={() => { setView('login'); clear(); }}
+                  style={{
+                    width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '13px', fontWeight: 500, color: '#57534e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
+                    padding: '8px',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#a8a29e'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#57534e'}
+                >
+                  <ChevronLeft style={{ width: '14px', height: '14px' }} /> Back to sign in
+                </button>
+              </div>
+            )}
 
           </div>
-        )}
 
+          {/* Footer */}
+          <div style={{
+            position: 'absolute', bottom: '24px', left: 0, right: 0,
+            textAlign: 'center', fontSize: '11px', color: '#44403c',
+            fontWeight: 500, letterSpacing: '0.04em',
+          }}>
+            CrossMart ERP &nbsp;·&nbsp; Internal System
+          </div>
+        </div>
+
+        {/* ── MOBILE: hide left panel ── */}
+        <style>{`
+          @media (max-width: 768px) {
+            .brand-panel { display: none !important; }
+          }
+        `}</style>
       </div>
+    </>
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════
+   FIELD — Clean input with label above
+═══════════════════════════════════════════════════ */
+function Field({ id, label, icon: Icon, type = 'text', value, onChange, required, right }) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <div>
+      <label htmlFor={id} style={{
+        display: 'block', fontSize: '12px', fontWeight: 600,
+        color: '#78716c', marginBottom: '6px',
+        letterSpacing: '0.02em',
+      }}>
+        {label}
+      </label>
+      <div style={{
+        position: 'relative', display: 'flex', alignItems: 'center',
+        border: `1px solid ${focused ? 'rgba(217,119,6,0.5)' : 'rgba(255,255,255,0.08)'}`,
+        borderRadius: '10px',
+        background: focused ? 'rgba(217,119,6,0.04)' : 'rgba(255,255,255,0.025)',
+        transition: 'all 0.2s ease',
+        boxShadow: focused ? '0 0 0 3px rgba(217,119,6,0.08)' : 'none',
+      }}>
+        <div style={{
+          position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
+          color: focused ? '#d97706' : '#57534e',
+          display: 'flex', transition: 'color 0.2s ease',
+          pointerEvents: 'none',
+        }}>
+          <Icon style={{ width: '15px', height: '15px' }} />
+        </div>
+        <input
+          id={id} type={type} value={value}
+          onChange={e => onChange(e.target.value)}
+          required={required}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={{
+            flex: 1, width: '100%',
+            background: 'none', border: 'none', outline: 'none',
+            padding: '12px 14px 12px 42px',
+            fontSize: '14px', fontWeight: 500,
+            color: '#e7e5e4',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            caretColor: '#d97706',
+          }}
+          autoComplete="off"
+        />
+        {right && <div style={{ paddingRight: '12px', display: 'flex' }}>{right}</div>}
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════
+   BTN — Submit button
+═══════════════════════════════════════════════════ */
+function Btn({ loading, text, loadingText }) {
+  const [hov, setHov] = useState(false);
+
+  return (
+    <button type="submit" disabled={loading}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        width: '100%', padding: '13px 20px',
+        border: 'none', borderRadius: '10px',
+        cursor: loading ? 'not-allowed' : 'pointer',
+        fontFamily: "'Inter', system-ui, sans-serif",
+        fontSize: '14px', fontWeight: 600,
+        color: '#fef3c7',
+        background: loading
+          ? 'rgba(161,98,7,0.4)'
+          : hov
+            ? 'linear-gradient(135deg, #b45309, #d97706)'
+            : '#92400e',
+        boxShadow: hov && !loading
+          ? '0 4px 20px rgba(217,119,6,0.25)'
+          : '0 1px 3px rgba(0,0,0,0.4)',
+        transform: hov && !loading ? 'translateY(-1px)' : 'none',
+        transition: 'all 0.2s ease',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+      }}
+    >
+      {loading
+        ? <><Loader2 style={{ width: '15px', height: '15px', animation: 'spin 1s linear infinite' }} /> {loadingText}</>
+        : <>{text} <ArrowRight style={{ width: '15px', height: '15px' }} /></>
+      }
+    </button>
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════
+   Eye toggle + Alert
+═══════════════════════════════════════════════════ */
+function EyeBtn({ on, flip }) {
+  return (
+    <button type="button" onClick={flip} tabIndex={-1} style={{
+      background: 'none', border: 'none', cursor: 'pointer',
+      color: '#57534e', display: 'flex', padding: '2px',
+      transition: 'color 0.15s ease',
+    }}
+      onMouseEnter={e => e.currentTarget.style.color = '#a8a29e'}
+      onMouseLeave={e => e.currentTarget.style.color = '#57534e'}
+    >
+      {on ? <EyeOff style={{ width: '15px', height: '15px' }} /> : <Eye style={{ width: '15px', height: '15px' }} />}
+    </button>
+  );
+}
+
+function AlertMsg({ type, msg }) {
+  if (!msg) return null;
+  const isErr = type === 'error';
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: '10px',
+      padding: '12px 14px', marginBottom: '16px',
+      background: isErr ? 'rgba(239,68,68,0.07)' : 'rgba(22,163,74,0.07)',
+      border: `1px solid ${isErr ? 'rgba(239,68,68,0.2)' : 'rgba(22,163,74,0.2)'}`,
+      borderRadius: '10px',
+      fontSize: '13px', fontWeight: 500, color: isErr ? '#fca5a5' : '#86efac',
+      animation: isErr ? 'shake 0.3s ease' : 'fadeIn 0.25s ease',
+      lineHeight: 1.5,
+    }}>
+      {isErr
+        ? <AlertCircle style={{ width: '15px', height: '15px', flexShrink: 0, marginTop: '1px' }} />
+        : <CheckCircle2 style={{ width: '15px', height: '15px', flexShrink: 0, marginTop: '1px' }} />}
+      <span>{msg}</span>
     </div>
   );
 }

@@ -8239,5 +8239,37 @@
       "credentialHistory": [],
       "notes": "Payment: 2. K Pay ( KBZ Pay )"
     }
+  ],
+  "users": [
+    {
+      "id": "usr_1789230043286",
+      "name": "meriko",
+      "email": "merikolenn@gmail.com",
+      "username": "merikolenn@gmail.com",
+      "passwordHash": "scrypt:32768:8:1$76up83A8XyHCESjk$7a1e6993b67e8ed377fdfb87c88110fe241689eae16692233762cfe66cd8c215058ecf81ee4ef52a27733f08f42dc2f872b42947f76a1605e4fb6675e7030ad4",
+      "role": "admin",
+      "isVerified": true,
+      "createdAt": "2026-09-12T16:20:43.458Z"
+    },
+    {
+      "id": "usr_1789238348461940",
+      "name": "japanlenn",
+      "email": "japanlenn@gmail.com",
+      "username": "japanlenn@gmail.com",
+      "passwordHash": "scrypt:32768:8:1$76up83A8XyHCESjk$7a1e6993b67e8ed377fdfb87c88110fe241689eae16692233762cfe66cd8c215058ecf81ee4ef52a27733f08f42dc2f872b42947f76a1605e4fb6675e7030ad4",
+      "role": "admin",
+      "isVerified": true,
+      "createdAt": "2026-09-12T18:39:08.461Z"
+    },
+    {
+      "id": "usr_superadmin_001",
+      "name": "Maung Lenn",
+      "email": "maunglenn@gmail.com",
+      "username": "maunglenn@gmail.com",
+      "passwordHash": "scrypt:32768:8:1$f076fde6d9682462$b1ee22200465989ebe8dc88c9105c3ecc35ecbb8d4a43e57e93b330f7175b9a808e6d7696869cfb6849c46ae807230fde32f27df2cbed8f71324f49f9e2dcb1f",
+      "role": "superadmin",
+      "isVerified": true,
+      "createdAt": "2026-09-12T19:13:59.423Z"
+    }
   ]
 }

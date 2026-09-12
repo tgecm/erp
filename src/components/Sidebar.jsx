@@ -123,8 +123,8 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop Full-Height Left Sidebar (Pinned to Far Left Edge) */}
-      <aside className="no-print hidden md:block w-64 pl-4 py-4 pr-3 flex-shrink-0 select-none">
-        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-3xl p-3.5 shadow-xs sticky top-20 h-[calc(100vh-96px)] overflow-y-auto transition-colors duration-200">
+      <aside className="no-print hidden md:flex flex-col w-64 pl-4 py-4 pr-3 flex-shrink-0 select-none h-full overflow-hidden">
+        <div className="bg-white dark:bg-[#09090b] border border-slate-200/80 dark:border-zinc-800 rounded-3xl p-3.5 shadow-xs h-full flex flex-col justify-between overflow-y-auto transition-colors duration-200">
           {renderNavContent()}
         </div>
       </aside>
